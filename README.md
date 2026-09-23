@@ -15,7 +15,7 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | 4 | Faults, work orders, maintenance, usage threshold | Done |
 | 5 | Technician dashboard, rebalancing, chart, reset demo data | Done |
 | 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | Done |
-| 7 | Deploy to Vercel | Next |
+| 7 | Deploy to Vercel | In progress |
 
 ## Folder guide
 
@@ -86,6 +86,25 @@ npm run dev      # starts the site at http://localhost:3000
 ```
 
 Run `npm run seed` again at any time to put all the demo data back to how it started.
+
+## Deploying to Vercel
+
+The site runs on [Vercel](https://vercel.com) (free Hobby plan) and deploys itself from GitHub.
+
+1. **Get the code onto `main`.** Vercel publishes the `main` branch as the live site. Merge the pull request with the latest work into `main` on GitHub.
+2. **Import the project.** On vercel.com, sign in with GitHub, click **Add New… → Project**, and choose `resource-hub`. Vercel spots that it's Next.js; leave the build settings as they are.
+3. **Add the two public settings** under **Environment Variables** (the same values as in `.env.local`):
+   - `NEXT_PUBLIC_SUPABASE_URL`: the project URL, e.g. `https://abcd1234.supabase.co` (not the `/rest/v1/` address)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the anon (publishable) key
+
+   **Don't add `SUPABASE_SERVICE_ROLE_KEY`.** The website never uses it; it's only for `npm run seed` on your own computer.
+4. Click **Deploy**. After a minute or two you get a web address such as `resource-hub-abc.vercel.app`.
+5. **Tell Supabase the address.** In Supabase, open **Authentication → URL Configuration** and set **Site URL** to the Vercel address.
+6. **Check it:** open the address, try each demo account, and open `/kiosk/S` on a second device.
+
+After that, every push to `main` updates the live site automatically. If a deployment fails, the **Deployments** tab on Vercel shows why; nothing changes on the live site until a deployment succeeds.
+
+To start the live demo from the sample data again, log in as the technician and use **Reset demo data** on the dashboard.
 
 ## Try it: a quick tour
 
