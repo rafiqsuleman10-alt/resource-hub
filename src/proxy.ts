@@ -5,7 +5,7 @@ import { isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from "@/lib/supaba
 // Runs before every page request. It keeps the login session fresh and sends
 // anyone who isn't logged in to /login. (Next.js 16 calls this "proxy";
 // older versions called it "middleware".)
-const PUBLIC_PATHS = ["/login", "/privacy", "/kiosk"];
+const PUBLIC_PATHS = ["/login", "/privacy", "/display", "/kiosk"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

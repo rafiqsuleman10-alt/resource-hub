@@ -131,8 +131,8 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
         <Stat label="Utilisation" value={inUse ? pct(onLoan, inUse) : "–"} hint={`${onLoan} of ${inUse} units on loan`} />
       </dl>
 
-      <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
-        <div className="grid min-w-0 content-start gap-8">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-8">
           <section aria-labelledby="chart-heading" className="card">
             <h2 id="chart-heading" className="mb-0.5 text-[1.15em] font-bold">
               Loans per day
@@ -190,7 +190,7 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
           </section>
         </div>
 
-        <div className="grid min-w-0 content-start gap-8">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-8">
           <section aria-labelledby="moves-heading">
             <h2 id="moves-heading" className="mb-1 text-[1.15em] font-bold">
               Rebalancing suggestions

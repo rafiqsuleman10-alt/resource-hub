@@ -146,7 +146,7 @@ export default function Kiosk({
       </header>
 
       <div className="grid gap-6 px-5 py-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10">
-        <main className="max-w-xl" aria-busy={busy}>
+        <main id="main" className="max-w-xl" aria-busy={busy}>
           {!node.online ? (
             <h1 className="text-[1.5em] font-bold text-white">This locker is offline. Please use another locker.</h1>
           ) : (
@@ -190,12 +190,10 @@ export default function Kiosk({
             {node.compartments.map((c) => (
               <div
                 key={c.number}
-                className={`grid place-items-center rounded text-[0.7em] ${
-                  c.size === "L" ? "aspect-[1/1.5]" : c.size === "M" ? "aspect-[1/1.2]" : "aspect-square"
-                } ${
+                className={`grid aspect-square place-items-center rounded text-[0.7em] ${
                   c.number === openNumber
                     ? "animate-pulse bg-teal font-bold text-(--on-teal) outline-3 outline-[#7FE3C2] motion-reduce:animate-none"
-                    : "bg-[#2A3947] text-[#6D8193]"
+                    : "bg-[#2A3947] text-[#95A7B7]"
                 }`}
               >
                 {c.number}

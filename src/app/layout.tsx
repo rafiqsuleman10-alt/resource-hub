@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible } from "next/font/google";
 import Footer from "@/components/Footer";
+import { DISPLAY_SCRIPT } from "@/lib/display";
 import "./globals.css";
 
 const atkinson = Atkinson_Hyperlegible({
@@ -27,8 +28,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-ZA" className={atkinson.variable}>
+    // The display script may add a theme or classes before React loads.
+    <html lang="en-ZA" className={atkinson.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
+        <a
+          href="#main"
+          className="sr-only z-50 rounded-lg bg-surface px-4 py-2 font-bold text-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >
+          Skip to main content
+        </a>
         <div className="flex-1">{children}</div>
         <Footer />
       </body>

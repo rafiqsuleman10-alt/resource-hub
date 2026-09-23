@@ -31,7 +31,7 @@ export default async function Home() {
           <SignOutButton />
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-6 md:px-5">
+      <main id="main" className="mx-auto max-w-4xl px-4 py-6 md:px-5">
         <h1 className="sr-only">Resource Hub</h1>
         <p className="note note-bad" role="alert">
           {error

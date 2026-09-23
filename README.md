@@ -14,8 +14,8 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | 3 | Kiosk collection and return, loans, extend, holiday rule | Done |
 | 4 | Faults, work orders, maintenance, usage threshold | Done |
 | 5 | Technician dashboard, rebalancing, chart, reset demo data | Done |
-| 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | Next |
-| 7 | Deploy to Vercel | |
+| 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | Done |
+| 7 | Deploy to Vercel | Next |
 
 ## Folder guide
 
@@ -27,6 +27,7 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | `src/app/(staff)/` | Screens for staff. `dashboard/` is the technician's dashboard; `maintenance/` lists work orders and routine services. |
 | `src/lib/rebalance.ts` | The rule behind the dashboard's rebalancing suggestions. |
 | `src/app/kiosk/` | The locker touchscreen, simulated: `/kiosk` lists the lockers, `/kiosk/S` (or `C`, `SR`) is one locker's screen. No login. |
+| `src/app/privacy/`, `src/app/display/` | The privacy notice and display settings (public, linked from every page's footer). |
 | `src/components/` | Pieces used on several pages, such as the campus strip. |
 | `src/lib/student.ts` | Loads the logged-in student, their location and stock counts. |
 | `src/lib/supabase/` | How the site connects to Supabase. |
@@ -85,6 +86,23 @@ npm run dev      # starts the site at http://localhost:3000
 ```
 
 Run `npm run seed` again at any time to put all the demo data back to how it started.
+
+## Try it: a quick tour
+
+1. **Student 1** (`student1@demo.hub`): Browse → Safety goggles → choose *Until tomorrow* (a public-holiday due date moves to the next working morning) → Reserve. Watch the 30-minute countdown; try *Change locker*.
+2. Tap **I'm at the locker**. The locker screen opens: tap card `CARD-0001`, try *The door didn't open* (you get a WO number and a new compartment), then *I've closed the door*.
+3. **My loans**: *Extend* the laptop; *Return* the overdue Vernier caliper to any locker and say it's damaged; *Report a fault* with a photo.
+4. **Maintenance officer** (`maint@demo.hub`): *Start work* and *Close* the work orders; closed items go back into stock at Node S.
+5. **Technician** (`tech@demo.hub`): the dashboard's figures, 14-day chart, stock table and rebalancing (*Mark as moved*). Switch a locker's battery backup off and look at that locker's screen. *Reset demo data* puts everything back.
+
+## Accessibility
+
+- Works from 360 px phones to wide desktops; the student screens use two columns on wider screens.
+- Everything can be done with the keyboard: a *Skip to main content* link, visible focus, and real radio buttons (arrow keys move between lockers).
+- Colours meet WCAG AA contrast. Two prototype colours were darkened slightly to pass: muted text (`#7A8794` → `#5F6B78`) and amber (`#A8620A` → `#96560A`).
+- *Display settings* (Help, or the footer link): light, dark or match the device, larger text, high contrast. Saved in the browser only.
+- Respects "reduce motion". Screen readers hear the countdown at 10, 5 and 1 minutes, not every second. The chart has a table view.
+- Checked with axe-core on every screen, in light and dark mode.
 
 ## How the security works (Row Level Security)
 

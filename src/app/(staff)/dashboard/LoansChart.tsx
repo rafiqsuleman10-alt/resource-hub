@@ -38,7 +38,7 @@ export default function LoansChart({ days }: { days: Day[] }) {
             />
           ))}
 
-          <div role="group" aria-label="Loans per day" className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${days.length}, 1fr)` }}>
+          <div role="group" aria-label="Loans per day" className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
             {days.map((d, i) => (
               <button
                 key={d.key}
@@ -82,11 +82,14 @@ export default function LoansChart({ days }: { days: Day[] }) {
       </div>
 
       {/* X axis: weekday and date */}
-      <div aria-hidden="true" className="mt-1 ml-8 grid text-center text-[0.7em] leading-tight text-ink-3" style={{ gridTemplateColumns: `repeat(${days.length}, 1fr)` }}>
+      <div aria-hidden="true" className="mt-1 ml-8 grid text-center text-[0.7em] leading-tight text-ink-3" style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
         {days.map((d) => (
           <span key={d.key}>
-            {d.weekday}
-            <br />
+            {/* Weekday only where there's room; the date always shows. */}
+            <span className="hidden sm:inline">
+              {d.weekday}
+              <br />
+            </span>
             {d.date}
           </span>
         ))}

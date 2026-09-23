@@ -92,7 +92,7 @@ export default async function MaintenancePage(props: PageProps<"/maintenance">) 
         <Stat label="In progress" value={inProgress} />
       </dl>
 
-      <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <section aria-labelledby="wo-heading">
           <h2 id="wo-heading" className="mb-3 text-[1.2em] font-bold">
             Work orders from fault reports

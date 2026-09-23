@@ -25,7 +25,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-6">{children}</main>
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-6">{children}</main>
     </div>
   );
 }

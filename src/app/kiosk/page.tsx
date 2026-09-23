@@ -15,7 +15,7 @@ export default async function KioskIndex() {
   const nodes = (data ?? []) as Node[];
 
   return (
-    <main className="min-h-dvh bg-kiosk px-5 py-8 text-[#EAF0F4] md:px-10">
+    <main id="main" className="min-h-dvh bg-kiosk px-5 py-8 text-[#EAF0F4] md:px-10">
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-1 text-[1.6em] font-bold text-white">Locker screens</h1>
         <p className="mb-5 text-[#9FB0BF]">

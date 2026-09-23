@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import DisplaySettings from "@/components/DisplaySettings";
 
 export const metadata: Metadata = { title: "Help" };
 
@@ -35,6 +36,13 @@ export default function HelpPage() {
         .
       </p>
       <p>Technician desk: S-Blocks ground floor, weekdays 07:30 to 16:00.</p>
+      <h2 className="mt-6 mb-2 font-bold">Display</h2>
+      <DisplaySettings />
+      <p className="mt-4 text-[0.9em]">
+        <Link href="/privacy" className="font-bold text-teal underline">
+          How we use your information
+        </Link>
+      </p>
     </div>
   );
 }

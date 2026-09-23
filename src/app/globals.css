@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Dark mode follows the device setting, unless the page sets
-   <html data-theme="light|dark"> (the toggle comes in a later phase). */
+/* Dark mode follows the device setting, unless the person chose Light or
+   Dark in Display settings, which sets <html data-theme="light|dark">. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ------------------------------------------------------------------
@@ -10,14 +10,14 @@
 :root {
   --ink: #1e2a36;
   --ink-2: #4b5968;
-  --ink-3: #7a8794;
+  --ink-3: #5f6b78; /* darkened from the prototype's #7a8794 to pass WCAG AA */
   --bg: #e9eef2;
   --surface: #ffffff;
   --surface-2: #f4f7f9;
   --line: #d5dde3;
   --teal: #0c7a5e;
   --teal-soft: #ddf1ea;
-  --amber: #a8620a;
+  --amber: #96560a; /* darkened from #a8620a to pass WCAG AA on amber-soft */
   --amber-soft: #fbebd3;
   --coral: #b63a24;
   --coral-soft: #f8e1db;
@@ -74,7 +74,7 @@
   --on-teal: #0b1117;
   --chart: #2fa882;
 }
-/* Help screen toggles (wired up in a later phase). */
+/* Display settings (Help page and /display): larger text and high contrast. */
 :root.contrast {
   --ink: #000;
   --ink-2: #1a1a1a;
@@ -86,6 +86,27 @@
 }
 :root.large {
   --fs: 19px;
+}
+/* High contrast in dark mode (device setting or chosen). */
+@media (prefers-color-scheme: dark) {
+  :root.contrast:not([data-theme="light"]) {
+    --ink: #fff;
+    --ink-2: #f2f2f2;
+    --ink-3: #e2e2e2;
+    --line: #fff;
+    --teal: #6ff0c4;
+    --amber: #ffc266;
+    --coral: #ff9f87;
+  }
+}
+:root.contrast[data-theme="dark"] {
+  --ink: #fff;
+  --ink-2: #f2f2f2;
+  --ink-3: #e2e2e2;
+  --line: #fff;
+  --teal: #6ff0c4;
+  --amber: #ffc266;
+  --coral: #ff9f87;
 }
 
 /* Make the colours usable as Tailwind classes, e.g. bg-surface, text-ink-2. */
