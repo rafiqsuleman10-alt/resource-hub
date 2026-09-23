@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resource Hub prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A36; --ink-2:#4B5968; --ink-3:#7A8794;
+  --bg:#E9EEF2; --surface:#FFFFFF; --surface-2:#F4F7F9; --line:#D5DDE3;
+  --teal:#0C7A5E; --teal-soft:#DDF1EA; --amber:#A8620A; --amber-soft:#FBEBD3;
+  --coral:#B63A24; --coral-soft:#F8E1DB; --slate:#2C3A48; --kiosk:#17212B; --kiosk-2:#22303D;
+  --focus:#1B6FD1; --fs:16px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E6ECF1; --ink-2:#B3BFCA; --ink-3:#8594A2;
+    --bg:#0F161D; --surface:#18222C; --surface-2:#1F2B36; --line:#2E3C4A;
+    --teal:#3CC49A; --teal-soft:#15382E; --amber:#EBA64A; --amber-soft:#3A2A12;
+    --coral:#F08469; --coral-soft:#3E1F18; --slate:#0B1117; --kiosk:#0A1016; --kiosk-2:#15202A; --focus:#6FA8F0;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E6ECF1; --ink-2:#B3BFCA; --ink-3:#8594A2;
+  --bg:#0F161D; --surface:#18222C; --surface-2:#1F2B36; --line:#2E3C4A;
+  --teal:#3CC49A; --teal-soft:#15382E; --amber:#EBA64A; --amber-soft:#3A2A12;
+  --coral:#F08469; --coral-soft:#3E1F18; --slate:#0B1117; --kiosk:#0A1016; --kiosk-2:#15202A; --focus:#6FA8F0;
+}
+:root.contrast{ --ink:#000; --ink-2:#1a1a1a; --ink-3:#333; --line:#000; --teal:#005A41; --amber:#7A4300; --coral:#8E1C08; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0; min-height:100%; background:var(--bg); color:var(--ink);
+  font-family:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif; font-size:var(--fs); line-height:1.45}
+:root.large{--fs:19px}
+button,input,select,textarea{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.phone{max-width:430px; margin:0 auto; min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)); background:var(--surface); display:flex; flex-direction:column; position:relative}
+@media (min-width:600px){ .phone{margin:24px auto; min-height:calc(100dvh - 48px); border-radius:28px; overflow:hidden; box-shadow:0 0 0 1px var(--line), 0 30px 60px -30px rgba(20,30,40,.45)} }
+header.top{padding:18px 20px 12px; background:var(--slate); color:#fff}
+header.top h1{margin:0; font-size:1.35em; letter-spacing:-.01em}
+.near{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:.9em; color:#C9D3DC}
+.near select{background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:8px; padding:5px 8px}
+.near select option{color:#000}
+main{flex:1; overflow-y:auto; padding:16px 18px 96px}
+nav.tabs{position:sticky; bottom:0; display:grid; grid-template-columns:repeat(4,1fr); background:var(--surface); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{background:none; border:0; padding:10px 4px 12px; font-size:.82em; color:var(--ink-3); display:flex; flex-direction:column; align-items:center; gap:3px}
+nav.tabs button[aria-current="page"]{color:var(--teal); font-weight:700}
+nav.tabs svg{width:22px; height:22px}
+.badge{display:inline-block; min-width:18px; padding:0 6px; border-radius:9px; background:var(--amber); color:#fff; font-size:.75em; font-weight:700; margin-left:4px}
+h2{font-size:1.2em; margin:4px 0 12px}
+h3{font-size:1em; margin:18px 0 8px}
+p{margin:0 0 10px}
+.muted{color:var(--ink-2)} .small{font-size:.86em}
+.search{width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:var(--surface-2)}
+.chips{display:flex; gap:8px; overflow-x:auto; padding:12px 0 6px; margin:0 -18px; padding-left:18px; padding-right:18px; scrollbar-width:none}
+.chip{flex:none; border:1.5px solid var(--line); background:var(--surface); border-radius:20px; padding:6px 13px; font-size:.88em; white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--surface)}
+.list{list-style:none; margin:6px 0 0; padding:0}
+.row{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--line); padding:13px 2px}
+.row .glyph{flex:none; width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:var(--surface-2); color:var(--ink-2)}
+.row .glyph svg{width:22px; height:22px}
+.row .txt{flex:1; min-width:0}
+.row .name{font-weight:700}
+.row .sub{font-size:.86em; color:var(--ink-2)}
+.row .count{flex:none; text-align:right; font-size:.8em; color:var(--ink-3); line-height:1.2}
+.row .count b{display:block; font-size:1.55em; color:var(--teal)}
+.row .count.none b{color:var(--coral)}
+.back{background:none; border:0; color:var(--teal); padding:4px 0; font-weight:700; margin-bottom:6px}
+.strip{margin:6px 0 4px; border-radius:14px; background:var(--surface-2); border:1px solid var(--line); padding:10px 10px 6px}
+.strip svg{display:block; width:100%; height:auto}
+.strip .cap{font-size:.78em; color:var(--ink-3); display:flex; justify-content:space-between; padding:2px 4px 0}
+.nodes{display:grid; gap:8px; margin:10px 0}
+.node{display:flex; align-items:center; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; background:var(--surface); text-align:left; width:100%}
+.node[aria-checked="true"]{border-color:var(--teal); box-shadow:inset 0 0 0 1px var(--teal); background:var(--teal-soft)}
+.node[disabled]{opacity:.55; cursor:not-allowed}
+.node .dot{flex:none; width:20px; height:20px; border-radius:50%; border:2px solid var(--ink-3)}
+.node[aria-checked="true"] .dot{border:6px solid var(--teal)}
+.node .n1{font-weight:700} .node .n2{font-size:.85em; color:var(--ink-2)}
+.node .walk{margin-left:auto; text-align:right; font-size:.85em; color:var(--ink-2)}
+.node .walk b{display:block; font-size:1.2em; color:var(--ink)}
+.seg{display:flex; border:1.5px solid var(--line); border-radius:12px; overflow:hidden}
+.seg button{flex:1; background:var(--surface); border:0; padding:10px 6px; font-size:.9em}
+.seg button+button{border-left:1.5px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--surface); font-weight:700}
+.note{border-radius:12px; padding:11px 13px; font-size:.9em; margin:12px 0}
+.note.warn{background:var(--amber-soft); color:var(--ink)} .note.warn b{color:var(--amber)}
+.note.ok{background:var(--teal-soft)} .note.bad{background:var(--coral-soft)}
+.btn{display:block; width:100%; border:0; border-radius:14px; padding:14px; font-weight:700; font-size:1em; margin-top:10px}
+.btn.primary{background:var(--teal); color:#fff}
+.btn.secondary{background:var(--surface-2); color:var(--ink); border:1.5px solid var(--line)}
+.btn.danger{background:none; color:var(--coral); border:1.5px solid var(--coral-soft)}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.hold{background:var(--amber-soft); border-radius:18px; padding:18px; margin-top:6px}
+.hold .timer{font-size:2.6em; font-weight:700; color:var(--amber); font-variant-numeric:tabular-nums; line-height:1}
+.facts{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+.fact{background:var(--surface); border-radius:12px; padding:10px 12px}
+.fact span{display:block; font-size:.78em; color:var(--ink-3)} .fact b{font-size:1.15em}
+.pin{letter-spacing:.3em}
+.kiosk{background:var(--kiosk); color:#EAF0F4; border-radius:20px; padding:18px; margin-top:6px}
+.kiosk .where{font-size:.8em; color:#9FB0BF; margin-bottom:10px}
+.kiosk h2{color:#fff}
+.reader{display:grid; place-items:center; gap:8px; width:100%; margin:16px 0 8px; padding:26px 10px; border-radius:16px; border:2px dashed #3E5366; background:var(--kiosk-2); color:#EAF0F4}
+.reader svg{width:54px; height:54px}
+.reader:active{transform:scale(.99)}
+.grid{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin:12px 0}
+.cell{aspect-ratio:1/1.15; border-radius:4px; background:#2A3947; font-size:.62em; display:grid; place-items:center; color:#6D8193}
+.cell.open{background:var(--teal); color:#fff; font-weight:700; font-size:.8em; outline:3px solid #7FE3C2; animation:pulse 1.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.cell.open{animation:none}}
+@keyframes pulse{50%{outline-color:transparent}}
+.kbtn{display:block; width:100%; border-radius:12px; padding:13px; font-weight:700; margin-top:8px; border:0; background:#EAF0F4; color:var(--kiosk)}
+.kbtn.ghost{background:none; color:#C9D6E1; border:1.5px solid #3E5366; font-weight:400}
+.kbtn.teal{background:var(--teal); color:#fff}
+.loan{border:1.5px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px}
+.loan .top{display:flex; justify-content:space-between; gap:10px}
+.loan .due{font-size:.86em; color:var(--ink-2)} .loan .due.today{color:var(--amber); font-weight:700}
+.bar{height:6px; border-radius:3px; background:var(--surface-2); margin:10px 0 12px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--teal)} .bar i.late{background:var(--amber)}
+.acts{display:flex; gap:8px; flex-wrap:wrap}
+.acts button{flex:1; min-width:90px; border-radius:10px; padding:9px 8px; border:1.5px solid var(--line); background:var(--surface); font-size:.9em}
+.acts button.main{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:700}
+.opts{display:grid; gap:8px; margin:8px 0}
+.opt{text-align:left; border:1.5px solid var(--line); border-radius:12px; padding:12px; background:var(--surface)}
+.opt[aria-pressed="true"]{border-color:var(--teal); background:var(--teal-soft); font-weight:700}
+textarea{width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px; background:var(--surface-2); min-height:84px}
+.steps{padding-left:22px; margin:6px 0 12px} .steps li{margin-bottom:6px}
+.toggle{display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--line)}
+.toggle input{width:22px; height:22px; accent-color:var(--teal)}
+.taskbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--amber-soft); border-bottom:2px solid var(--amber); padding:10px 18px; font-size:.9em}
+.taskbar .tt{display:flex; justify-content:space-between; gap:10px; align-items:start}
+.taskbar button{background:none; border:1.5px solid var(--amber); color:var(--amber); border-radius:8px; padding:4px 10px; font-size:.85em; flex:none}
+.sus{border-bottom:1px solid var(--line); padding:12px 0}
+.likert{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px}
+.likert button{border:1.5px solid var(--line); border-radius:10px; padding:9px 0; background:var(--surface); font-weight:700}
+.likert button[aria-pressed="true"]{background:var(--ink); color:var(--surface); border-color:var(--ink)}
+.lk{display:flex; justify-content:space-between; font-size:.75em; color:var(--ink-3); margin-top:3px}
+table.res{width:100%; border-collapse:collapse; font-size:.82em; margin:8px 0}
+table.res th,table.res td{border-bottom:1px solid var(--line); padding:6px 4px; text-align:left}
+.wrap{overflow-x:auto}
+.toast{position:fixed; left:50%; bottom:88px; transform:translateX(-50%); background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:12px; font-size:.9em; z-index:20; max-width:90vw}
+.err{color:var(--coral); font-size:.85em; margin-top:6px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.proto{font-size:.78em; color:var(--ink-3); text-align:center; margin-top:18px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div id="taskbar"></div>
+  <header class="top">
+    <h1>Resource Hub</h1>
+    <div class="near"><label for="loc">You're near</label>
+      <select id="loc"></select></div>
+  </header>
+  <main id="view" tabindex="-1"></main>
+  <nav class="tabs" aria-label="Main">
+    <button data-tab="browse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Browse</button>
+    <button data-tab="loans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>My loans<span id="lb"></span></span></button>
+    <button data-tab="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>Help</button>
+    <button data-tab="test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>Test mode</button>
+  </nav>
+</div>
+<script>
+/* ---------------- data (prototype sample data from the design report) ---------------- */
+const ZONES = {S:{n:"S-Blocks",x:.10}, A:{n:"North residences",x:.06}, C:{n:"Library",x:.30}, E:{n:"Berea Residence",x:.38}, D:{n:"Admin & clinic",x:.47}, H:{n:"Sports centre",x:.58}, SR:{n:"South residences",x:.90}};
+const NODES = {S:{n:"Node S", place:"S-Blocks, ground floor", x:.12}, C:{n:"Node C", place:"Library entrance", x:.31}, SR:{n:"Node SR", place:"South residences, Gate 6", x:.88}};
+const WALK = {S:{S:1,C:3,SR:9}, A:{S:4,C:5,SR:10}, C:{S:3,C:1,SR:7}, E:{S:4,C:3,SR:6}, D:{S:5,C:3,SR:5}, H:{S:6,C:4,SR:4}, SR:{S:9,C:7,SR:1}};
+const CATS = [["all","All"],["safety","Lab & safety"],["measure","Measuring"],["tech","Tech"],["av","Camera & AV"],["every","Everyday"],["care","Health & access"]];
+const ITEMS = [
+ {id:"calc",name:"Scientific calculator",cat:"measure",loan:1,stock:{S:9,C:0,SR:4}},
+ {id:"laptop",name:"Laptop",cat:"tech",loan:2,stock:{S:4,C:6,SR:2}},
+ {id:"tablet",name:"Tablet",cat:"tech",loan:2,stock:{S:3,C:4,SR:3}},
+ {id:"charger",name:"Charger / power bank",cat:"tech",loan:.5,stock:{S:5,C:6,SR:5}},
+ {id:"cable",name:"HDMI / Ethernet cable",cat:"tech",loan:.5,stock:{S:3,C:4,SR:2}},
+ {id:"coat",name:"Laboratory coat",cat:"safety",loan:1,stock:{S:7,C:2,SR:3}},
+ {id:"goggles",name:"Safety goggles",cat:"safety",loan:.5,stock:{S:8,C:3,SR:4}},
+ {id:"hardhat",name:"Hard hat",cat:"safety",loan:.5,stock:{S:3,C:1,SR:2}},
+ {id:"caliper",name:"Vernier caliper",cat:"measure",loan:.5,stock:{S:3,C:1,SR:1}},
+ {id:"micro",name:"Micrometer",cat:"measure",loan:.5,stock:{S:2,C:1,SR:1}},
+ {id:"dslr",name:"DSLR camera",cat:"av",loan:2,stock:{S:1,C:3,SR:1}},
+ {id:"tripod",name:"Tripod",cat:"av",loan:2,stock:{S:1,C:3,SR:1}},
+ {id:"proj",name:"Projector",cat:"av",loan:.5,stock:{S:1,C:1,SR:0}},
+ {id:"umbrella",name:"Umbrella",cat:"every",loan:.5,stock:{S:3,C:3,SR:4}},
+ {id:"sport",name:"Sports equipment kit",cat:"every",loan:.3,stock:{S:0,C:1,SR:4}},
+ {id:"wheel",name:"Wheelchair",cat:"care",loan:1,stock:{S:1,C:1,SR:1}},
+ {id:"firstaid",name:"First aid kit",cat:"care",loan:.2,stock:{S:1,C:1,SR:1}}
+];
+const GLYPH = {
+ safety:'<path d="M3 10.5c0-2 2-3.5 9-3.5s9 1.5 9 3.5v2c0 2-1.5 3.5-3.5 3.5-1.6 0-2.4-1-3-2.2-.5-1-1-1.3-2.5-1.3s-2 .3-2.5 1.3C8 15 7.1 16 5.5 16 3.5 16 3 14.5 3 12.5z"/>',
+ measure:'<path d="M3 7h18v5H3zM6 7v2.5M9 7v3.5M12 7v2.5M15 7v3.5M18 7v2.5M5 12v6M9 12v4"/>',
+ tech:'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2.5 19h19"/>',
+ av:'<rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 7l1.5-2.5h4L15.5 7"/>',
+ every:'<path d="M3 12a9 9 0 0 1 18 0zM12 12v6.5a2 2 0 0 1-4 0"/>',
+ care:'<path d="M12 5v14M5 12h14"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/>'
+};
+const TODAY = new Date(2026,8,22,14,42);
+const HOLIDAYS = {"2026-09-24":"Heritage Day"};
+
+/* ---------------- state ---------------- */
+const S = {tab:"browse", view:"browse", loc:"S", cat:"all", q:"", item:null, node:null, period:0,
+  reservation:null, locker:null, faultFor:null, faultReason:null, extendFor:null,
+  loans:[
+    {uid:"L1", item:"caliper", tag:"VC-0412", from:"S", issued:new Date(2026,8,21,9,10), due:new Date(2026,8,22,16,0)},
+    {uid:"L2", item:"laptop", tag:"LT-0087", from:"C", issued:new Date(2026,8,21,11,30), due:new Date(2026,8,23,11,30)}
+  ], test:null, sus:null};
+const itemBy = id => ITEMS.find(i => i.id === id);
+const $ = s => document.querySelector(s);
+const view = $("#view");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtT = d => d.toLocaleTimeString("en-ZA",{hour:"2-digit",minute:"2-digit",hour12:false});
+const fmtD = d => d.toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short"});
+const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+function toast(m){ const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+function nearestWith(item){ return Object.keys(NODES).filter(n=>item.stock[n]>0).sort((a,b)=>WALK[S.loc][a]-WALK[S.loc][b])[0]; }
+
+/* ---------------- campus strip (signature element) ---------------- */
+function strip(item){
+  const W=360,H=78,pad=16, X=f=>pad+f*(W-2*pad);
+  let g=`<rect x="${pad-6}" y="30" width="${W-2*pad+12}" height="18" rx="9" fill="var(--line)"/>`;
+  for(const [k,n] of Object.entries(NODES)){
+    const has=item?item.stock[k]>0:true, sel=S.node===k;
+    g+=`<g><rect x="${X(n.x)-9}" y="30" width="18" height="18" rx="4" fill="${sel?"var(--teal)":has?"var(--slate)":"var(--surface)"}" stroke="${has?"none":"var(--ink-3)"}" stroke-dasharray="3 2"/>
+        <text x="${X(n.x)}" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${k}</text>
+        <text x="${X(n.x)}" y="66" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">${WALK[S.loc][k]} min</text></g>`;
+  }
+  const you=X(ZONES[S.loc].x);
+  g+=`<circle cx="${you}" cy="39" r="6.5" fill="var(--amber)" stroke="var(--surface)" stroke-width="2.5"/>`;
+  return `<div class="strip" aria-hidden="true"><svg viewBox="0 0 ${W} ${H}">${g}</svg>
+    <div class="cap"><span>North: Botanic Gardens Rd</span><span>South: Gate 7</span></div></div>`;
+}
+
+/* ---------------- views ---------------- */
+function vBrowse(){
+  const q=S.q.toLowerCase();
+  const list=ITEMS.filter(i=>(S.cat==="all"||i.cat===S.cat)&&i.name.toLowerCase().includes(q));
+  const rows=list.map(i=>{
+    const n=nearestWith(i), tot=Object.values(i.stock).reduce((a,b)=>a+b,0);
+    const sub=!n?"None available right now":`Nearest: ${NODES[n].place.split(",")[0]}, ${WALK[S.loc][n]} min walk`;
+    return `<li><button class="row" data-item="${i.id}">
+      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">${GLYPH[i.cat]}</svg></span>
+      <span class="txt"><span class="name">${i.name}</span><br><span class="sub">${sub}</span></span>
+      <span class="count ${tot?"":"none"}"><b>${tot}</b>free</span></button></li>`;}).join("");
+  return `<label class="sr" for="q">Search equipment</label>
+    <input id="q" class="search" type="search" placeholder="Search equipment" value="${esc(S.q)}" autocomplete="off">
+    <div class="chips" role="group" aria-label="Category">${CATS.map(([k,l])=>`<button class="chip" data-cat="${k}" aria-pressed="${S.cat===k}">${l}</button>`).join("")}</div>
+    <ul class="list">${rows||`<li class="muted" style="padding:20px 0">No equipment matches "${esc(S.q)}". Try a shorter word, or choose All.</li>`}</ul>
+    <p class="proto">Prototype with sample data. Nothing is actually reserved.</p>`;
+}
+function periods(item){
+  const out=[], base=new Date(TODAY);
+  const add=(h,label)=>{ let d=new Date(base.getTime()+h*3600e3); let moved=null;
+    if(HOLIDAYS[key(d)]){ moved=HOLIDAYS[key(d)]; d=new Date(d.getTime()+24*3600e3); d.setHours(10,0,0,0);} out.push({label,d,moved}); };
+  if(item.loan<=.5){ add(4,"4 hours"); add(24,"Until tomorrow"); }
+  else if(item.loan<=1){ add(24,"1 day"); add(48,"2 days"); }
+  else { add(48,"2 days"); add(72,"3 days"); }
+  return out;
+}
+function vItem(){
+  const i=itemBy(S.item); if(!S.node||!i.stock[S.node]) S.node=nearestWith(i)||null;
+  const ps=periods(i), p=ps[S.period]||ps[0];
+  const nodes=Object.entries(NODES).sort((a,b)=>WALK[S.loc][a[0]]-WALK[S.loc][b[0]]).map(([k,n])=>{
+    const c=i.stock[k];
+    return `<button class="node" role="radio" data-node="${k}" aria-checked="${S.node===k}" ${c?"":"disabled"}>
+      <span class="dot"></span><span><span class="n1">${n.place.split(",")[0]}</span><br><span class="n2">${c?`${c} available`:"None here right now"}</span></span>
+      <span class="walk"><b>${WALK[S.loc][k]} min</b>walk</span></button>`;}).join("");
+  return `<button class="back" data-go="browse">Back to equipment</button>
+    <h2>${i.name}</h2>
+    <p class="muted small">Return it to any locker. You'll get a reminder before it's due.</p>
+    <h3 id="nl">Collect from</h3>
+    ${strip(i)}
+    <div class="nodes" role="radiogroup" aria-labelledby="nl">${nodes}</div>
+    <h3>Borrow for</h3>
+    <div class="seg" role="group" aria-label="Loan period">${ps.map((x,k)=>`<button data-period="${k}" aria-pressed="${S.period===k}">${x.label}</button>`).join("")}</div>
+    <p class="small muted" style="margin-top:8px">Due back ${fmtD(p.d)}, ${fmtT(p.d)}</p>
+    ${p.moved?`<div class="note warn"><b>Due date moved.</b> This loan would end on ${p.moved}, when no technicians are on campus, so it's due the next morning instead.</div>`:""}
+    <button class="btn primary" id="reserve" ${S.node?"":"disabled"}>Reserve ${i.name.toLowerCase()}</button>
+    ${S.node?"":`<p class="err">Every locker is out of this item. Check back later or choose a similar item.</p>`}`;
+}
+function vReserved(){
+  const r=S.reservation, i=itemBy(r.item), left=Math.max(0,r.until-Date.now());
+  const mm=String(Math.floor(left/60000)).padStart(2,"0"), ss=String(Math.floor(left/1000)%60).padStart(2,"0");
+  return `<h2>Ready to collect</h2>
+    <div class="hold" aria-live="polite">
+      <div class="small">Held for you for</div><div class="timer" id="timer">${mm}:${ss}</div>
+      <div class="small muted" style="margin-top:6px">${i.name} at ${NODES[r.node].place}</div>
+      <div class="facts">
+        <div class="fact"><span>Compartment</span><b>${r.comp}</b></div>
+        <div class="fact"><span>Backup PIN</span><b class="pin">${r.pin}</b></div>
+        <div class="fact"><span>Walk from here</span><b>${WALK[S.loc][r.node]} min</b></div>
+        <div class="fact"><span>Due back</span><b>${fmtD(r.due)}</b></div>
+      </div></div>
+    <p class="small muted" style="margin-top:12px">At the locker, tap your student card on the reader. If your card doesn't work, enter the backup PIN. We've also sent the PIN to your phone.</p>
+    <button class="btn primary" data-go="locker-collect">I'm at the locker</button>
+    <button class="btn secondary" id="chg">Change locker</button>
+    <button class="btn danger" id="cancel">Cancel reservation</button>`;
+}
+function lockerGrid(open){ let h=""; for(let k=1;k<=24;k++) h+=`<div class="cell ${k===open?"open":""}">${k}</div>`; return `<div class="grid" aria-hidden="true">${h}</div>`; }
+function vLocker(){
+  const L=S.locker, node=NODES[L.node];
+  const shell=(inner)=>`<button class="back" data-go="${L.mode==="collect"?"reserved":"loans"}">Back to my phone</button>
+    <p class="small muted">This screen simulates the touchscreen on the locker.</p>
+    <div class="kiosk"><div class="where">${node.n}, ${node.place}. Battery backup ready.</div>${inner}</div>`;
+  const it=itemBy(L.item).name.toLowerCase();
+  if(L.stage==="tap") return shell(`<h2>${L.mode==="collect"?"Collect your reservation":"Return an item"}</h2>
+      <button class="reader" id="tap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="13" height="9" rx="1.5"/><path d="M18 8.5a4 4 0 0 1 0 5M20.5 6.5a7 7 0 0 1 0 9"/></svg>Tap your student card here</button>
+      <button class="kbtn ghost" id="usepin">Use backup PIN instead</button>`);
+  if(L.stage==="pin") return shell(`<h2>Enter backup PIN</h2>
+      <label class="sr" for="pinin">Backup PIN</label>
+      <input id="pinin" inputmode="numeric" maxlength="4" class="search pin" style="background:#22303D;color:#fff;border-color:#3E5366;text-align:center;font-size:1.6em" autocomplete="off">
+      <p class="err" id="pinerr" style="color:#FFB4A2"></p>
+      <button class="kbtn teal" id="pinok">Open compartment</button>`);
+  if(L.stage==="open") return shell(`<h2>Compartment ${L.comp} is open</h2>
+      ${lockerGrid(L.comp)}
+      <p>${L.mode==="collect"?`Take your ${it} and close the door.`:`Place the ${it} inside and close the door.`}</p>
+      <button class="kbtn teal" id="closed">I've closed the door</button>
+      <button class="kbtn ghost" data-fault="noopen">The door didn't open</button>
+      ${L.mode==="collect"?`<button class="kbtn ghost" data-fault="wrong">The wrong item is inside</button>`:""}`);
+  if(L.stage==="scan") return shell(`<h2>Checking the item</h2><p>Reading the tag inside compartment ${L.comp}.</p>`);
+  if(L.stage==="condition") return shell(`<h2>Returned: ${itemBy(L.item).name}</h2>
+      <p class="small" style="color:#9FE3C9">Tag ${L.tag} confirmed.</p>
+      <p>How was it when you used it?</p>
+      <button class="kbtn" data-cond="good">It worked fine</button>
+      <button class="kbtn ghost" data-cond="minor">Minor problem</button>
+      <button class="kbtn ghost" data-cond="damaged">It's damaged</button>`);
+  if(L.stage==="done") return shell(`<h2>${L.mode==="collect"?"Enjoy, it's yours until "+fmtD(L.due):"Returned. Thank you."}</h2>
+      <p>${L.mode==="collect"?"Your loan is in My loans. You can return it to any locker.":"The loan is closed and the item is back in stock."}</p>
+      <button class="kbtn teal" data-go="loans">Go to my loans</button>`);
+}
+function vLoans(){
+  if(!S.loans.length) return `<h2>My loans</h2><p class="muted">You have nothing on loan. Browse equipment to borrow something.</p><button class="btn primary" data-go="browse">Browse equipment</button>`;
+  return `<h2>My loans</h2>`+S.loans.map(l=>{
+    const i=itemBy(l.item), total=l.due-l.issued, used=Math.min(1,(TODAY-l.issued)/total), today=key(l.due)===key(TODAY);
+    return `<div class="loan"><div class="top"><div><b>${i.name}</b><div class="small muted">Tag ${l.tag}</div></div>
+      <div class="due ${today?"today":""}">${today?"Due today":"Due"} ${today?"":fmtD(l.due)+" "}${fmtT(l.due)}</div></div>
+      <div class="bar" role="img" aria-label="${Math.round(used*100)} per cent of loan period used"><i class="${used>.75?"late":""}" style="width:${used*100}%"></i></div>
+      <div class="acts"><button class="main" data-return="${l.uid}">Return</button><button data-extend="${l.uid}">Extend</button><button data-reportloan="${l.uid}">Report a fault</button></div></div>`;}).join("");
+}
+function vReturnPick(){
+  const l=S.loans.find(x=>x.uid===S.locker.uid);
+  const nodes=Object.entries(NODES).sort((a,b)=>WALK[S.loc][a[0]]-WALK[S.loc][b[0]]).map(([k,n])=>`<button class="node" role="radio" data-rnode="${k}" aria-checked="${S.locker.node===k}">
+      <span class="dot"></span><span><span class="n1">${n.place.split(",")[0]}</span><br><span class="n2">Space for returns</span></span><span class="walk"><b>${WALK[S.loc][k]} min</b>walk</span></button>`).join("");
+  return `<button class="back" data-go="loans">Back to my loans</button><h2>Return ${itemBy(l.item).name.toLowerCase()}</h2>
+    <p class="muted small">Any locker takes returns. The nearest is listed first.</p>${strip(null)}
+    <div class="nodes" role="radiogroup" aria-label="Return to">${nodes}</div>
+    <button class="btn primary" id="goreturn" ${S.locker.node?"":"disabled"}>I'm at this locker</button>`;
+}
+function vExtend(){
+  const l=S.loans.find(x=>x.uid===S.extendFor), i=itemBy(l.item);
+  const nd=new Date(l.due.getTime()+24*3600e3); let moved=HOLIDAYS[key(nd)]; if(moved){nd.setDate(nd.getDate()+1); nd.setHours(10,0,0,0);}
+  return `<button class="back" data-go="loans">Back to my loans</button><h2>Extend ${i.name.toLowerCase()}</h2>
+    <p>Currently due ${fmtD(l.due)}, ${fmtT(l.due)}.</p>
+    <div class="note ok">Nobody is waiting for this item, so you can extend once by one day.</div>
+    <p>New due date: <b>${fmtD(nd)}, ${fmtT(nd)}</b></p>
+    ${moved?`<div class="note warn"><b>Due date moved.</b> One day later is ${moved}, so it's due the next morning instead.</div>`:""}
+    <button class="btn primary" id="doext">Extend by one day</button>`;
+}
+const REASONS={noopen:"The door didn't open",wrong:"Wrong item in the compartment",damaged:"Item is damaged",missing:"Part is missing",other:"Something else"};
+function vFault(){
+  return `<button class="back" data-go="${S.faultBack||"loans"}">Back</button><h2>Report a fault</h2>
+    <p class="muted small">${S.faultFor?`About: ${esc(S.faultFor)}`:""}</p>
+    <div class="opts" role="group" aria-label="What happened">${Object.entries(REASONS).map(([k,v])=>`<button class="opt" data-reason="${k}" aria-pressed="${S.faultReason===k}">${v}</button>`).join("")}</div>
+    <label for="fnote" class="small">Anything else we should know? (optional)</label>
+    <textarea id="fnote"></textarea>
+    <button class="btn secondary" id="photo">Add a photo</button>
+    <button class="btn primary" id="sendfault">Send report</button><p class="err" id="ferr"></p>`;
+}
+function vHelp(){
+  const r=document.documentElement;
+  return `<h2>How it works</h2>
+    <ol class="steps"><li>Find the equipment you need and see how far each locker is.</li><li>Reserve it. We hold it for 30 minutes.</li><li>Tap your student card at the locker and take the item.</li><li>Return it to any locker before it's due.</li></ol>
+    <h3>Something went wrong?</h3>
+    <p>If a door doesn't open or the wrong item is inside, use the buttons on the locker screen, or report a fault from My loans. A technician is notified straight away.</p>
+    <p>Technician desk: S-Blocks ground floor, weekdays 07:30 to 16:00.</p>
+    <h3>Display</h3>
+    <div class="toggle"><label for="lg">Larger text</label><input id="lg" type="checkbox" ${r.classList.contains("large")?"checked":""}></div>
+    <div class="toggle"><label for="hc">High contrast</label><input id="hc" type="checkbox" ${r.classList.contains("contrast")?"checked":""}></div>
+    <p class="proto">Design prototype for DPJT121. Sample data only.</p>`;
+}
+
+/* ---------------- usability test mode ---------------- */
+const TASKS=[
+ {id:"T1",text:"Reserve safety goggles at the locker nearest the S-Blocks, then collect them.", start:{loc:"S"}},
+ {id:"T2",text:"Return the Vernier caliper you borrowed yesterday, and say what condition it was in."},
+ {id:"T3",text:"Your laptop is due soon. Extend the loan by one day."},
+ {id:"T4",text:"You tapped your card but the locker door didn't open. Report it."}
+];
+const SUSQ=["I think that I would like to use this system frequently.","I found the system unnecessarily complex.","I thought the system was easy to use.","I think that I would need the support of a technical person to be able to use this system.","I found the various functions in this system were well integrated.","I thought there was too much inconsistency in this system.","I would imagine that most people would learn to use this system very quickly.","I found the system very cumbersome to use.","I felt very confident using the system.","I needed to learn a lot of things before I could get going with this system."];
+function loadRes(){ try{ return JSON.parse(localStorage.getItem("hubTest")||"[]"); }catch(e){ return []; } }
+function saveRes(r){ try{ localStorage.setItem("hubTest",JSON.stringify(r)); }catch(e){} }
+let RES=loadRes();
+function curP(){ return RES.find(p=>p.id===S.pid); }
+function vTest(){
+  const p=curP();
+  const taskRows=TASKS.map(t=>{ const r=p&&p.tasks[t.id]; return `<tr><td>${t.id}</td><td>${r?(r.done?"Done":"Gave up"):"Not started"}</td><td>${r?Math.round(r.secs)+" s":""}</td><td>${r?r.taps:""}</td><td>${r&&!r.done?"":r?`<button class="chip" data-starttask="${t.id}">Redo</button>`:`<button class="chip" data-starttask="${t.id}">Start</button>`}</td></tr>`;}).join("");
+  const all=RES.filter(x=>x.sus!=null), mean=all.length?(all.reduce((a,b)=>a+b.sus,0)/all.length).toFixed(1):null;
+  return `<h2>Usability test</h2>
+    <p class="small muted">For the facilitator. Hand the phone to the participant after starting a task. Each task times itself and ends when the participant succeeds.</p>
+    ${p?`<p>Participant <b>${p.id}</b>${p.sus!=null?`, SUS score <b>${p.sus}</b>`:""}</p>
+      <div class="wrap"><table class="res"><tr><th>Task</th><th>Result</th><th>Time</th><th>Taps</th><th></th></tr>${taskRows}</table></div>
+      <button class="btn secondary" data-go="sus">${p.sus!=null?"Redo":"Start"} questionnaire (SUS)</button>
+      <button class="btn secondary" id="endp">Finish with this participant</button>`
+     :`<button class="btn primary" id="newp">Start a new participant</button>`}
+    <h3>All sessions</h3>
+    ${RES.length?`<div class="wrap"><table class="res"><tr><th>ID</th>${TASKS.map(t=>`<th>${t.id}</th>`).join("")}<th>SUS</th></tr>
+      ${RES.map(r=>`<tr><td>${r.id}</td>${TASKS.map(t=>{const x=r.tasks[t.id];return `<td>${x?(x.done?Math.round(x.secs)+"s":"gave up"):""}</td>`;}).join("")}<td>${r.sus??""}</td></tr>`).join("")}</table></div>
+      ${mean?`<p>Mean SUS: <b>${mean}</b> across ${all.length} participant${all.length>1?"s":""}. The report's acceptability threshold is 68.</p>`:""}
+      <label for="exp" class="small">Results to copy into your report</label>
+      <textarea id="exp" readonly style="min-height:120px;font-size:.8em">${exportText()}</textarea>
+      <button class="btn danger" id="wipe">Delete all results on this phone</button>`:`<p class="muted small">No sessions yet. Results stay on this phone only.</p>`}`;
+}
+function exportText(){
+  const head=["participant",...TASKS.map(t=>t.id+"_seconds"),...TASKS.map(t=>t.id+"_taps"),...TASKS.map(t=>t.id+"_completed"),"SUS"].join(",");
+  return head+"\n"+RES.map(r=>[r.id,...TASKS.map(t=>r.tasks[t.id]?Math.round(r.tasks[t.id].secs):""),...TASKS.map(t=>r.tasks[t.id]?r.tasks[t.id].taps:""),...TASKS.map(t=>r.tasks[t.id]?(r.tasks[t.id].done?1:0):""),r.sus??""].join(",")).join("\n");
+}
+function vSus(){
+  const a=S.sus||(S.sus=Array(10).fill(null));
+  return `<button class="back" data-go="test">Back</button><h2>A few questions</h2>
+    <p class="small muted">Answer for the app you just used. There are no right answers.</p>
+    ${SUSQ.map((q,k)=>`<div class="sus"><div>${k+1}. ${q}</div><div class="likert" role="group" aria-label="Question ${k+1}">${[1,2,3,4,5].map(v=>`<button data-sus="${k}:${v}" aria-pressed="${a[k]===v}">${v}</button>`).join("")}</div>
+      <div class="lk"><span>Strongly disagree</span><span>Strongly agree</span></div></div>`).join("")}
+    <button class="btn primary" id="susdone">Submit answers</button><p class="err" id="suserr"></p>
+    <p class="proto">System Usability Scale, Brooke (1996).</p>`;
+}
+function startTask(id){
+  const t=TASKS.find(x=>x.id===id);
+  resetDemo(); if(t.start&&t.start.loc) S.loc=t.start.loc;
+  S.test={id, t0:performance.now(), taps:0, errors:0};
+  go("browse","browse"); renderTaskbar();
+}
+function endTask(done){
+  if(!S.test) return; const p=curP(); if(!p) return;
+  p.tasks[S.test.id]={done, secs:(performance.now()-S.test.t0)/1000, taps:S.test.taps};
+  saveRes(RES); const id=S.test.id; S.test=null; renderTaskbar();
+  toast(done?`${id} complete. Hand the phone back to the facilitator.`:`${id} stopped.`);
+  setTimeout(()=>go("test","test"),900);
+}
+function check(ev){ if(!S.test) return; const id=S.test.id;
+  if(id==="T1"&&ev.startsWith("collected:goggles")) endTask(true);
+  if(id==="T2"&&ev==="returned:caliper") endTask(true);
+  if(id==="T3"&&ev==="extended:laptop") endTask(true);
+  if(id==="T4"&&ev==="fault:noopen") endTask(true);
+}
+function renderTaskbar(){
+  const tb=$("#taskbar");
+  if(!S.test){ tb.innerHTML=""; return; }
+  const t=TASKS.find(x=>x.id===S.test.id);
+  tb.innerHTML=`<div class="taskbar" role="region" aria-label="Current task"><div class="tt"><div><b>Your task:</b> ${t.text}</div><button id="giveup">Give up</button></div></div>`;
+  $("#giveup").onclick=()=>endTask(false);
+}
+function resetDemo(){
+  S.reservation=null; S.locker=null; S.item=null; S.node=null; S.period=0; S.q=""; S.cat="all"; S.faultReason=null;
+  S.loans=[{uid:"L1",item:"caliper",tag:"VC-0412",from:"S",issued:new Date(2026,8,21,9,10),due:new Date(2026,8,22,16,0)},
+           {uid:"L2",item:"laptop",tag:"LT-0087",from:"C",issued:new Date(2026,8,21,11,30),due:new Date(2026,8,23,11,30)}];
+  ITEMS.forEach(i=>{ if(i._orig) i.stock={...i._orig}; else i._orig={...i.stock}; });
+}
+
+/* ---------------- router & events ---------------- */
+let timerInt=null;
+function go(view,tab){
+  S.view=view; if(tab) S.tab=tab;
+  clearInterval(timerInt);
+  const R={browse:vBrowse,item:vItem,reserved:vReserved,locker:vLocker,loans:vLoans,returnpick:vReturnPick,extend:vExtend,fault:vFault,help:vHelp,test:vTest,sus:vSus};
+  view_render(R[view]());
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===S.tab?"page":"false"));
+  $("#lb").innerHTML=S.loans.length?`<span class="badge">${S.loans.length}</span>`:"";
+  if(view==="reserved") timerInt=setInterval(()=>{ const el=$("#timer"); if(!el) return; const left=Math.max(0,S.reservation.until-Date.now());
+    el.textContent=String(Math.floor(left/60000)).padStart(2,"0")+":"+String(Math.floor(left/1000)%60).padStart(2,"0"); },1000);
+}
+function view_render(html){ view.innerHTML=html; view.scrollTop=0; window.scrollTo(0,0); bind(); }
+function bind(){
+  const on=(sel,fn,ev="click")=>view.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
+  on("[data-go]",e=>{ const g=e.currentTarget.dataset.go;
+    if(g==="locker-collect"){ const r=S.reservation; S.locker={mode:"collect",node:r.node,comp:r.comp,item:r.item,stage:"tap",pin:r.pin,due:r.due}; go("locker"); }
+    else go(g, ["browse","loans","help","test"].includes(g)?g:null); });
+  const q=$("#q"); if(q) q.addEventListener("input",e=>{ S.q=e.target.value; const pos=e.target.selectionStart; go("browse"); const n=$("#q"); n.focus(); n.setSelectionRange(pos,pos); });
+  on("[data-cat]",e=>{ S.cat=e.currentTarget.dataset.cat; go("browse"); });
+  on("[data-item]",e=>{ S.item=e.currentTarget.dataset.item; S.node=null; S.period=0; go("item"); });
+  on("[data-node]",e=>{ S.node=e.currentTarget.dataset.node; go("item"); });
+  on("[data-period]",e=>{ S.period=+e.currentTarget.dataset.period; go("item"); });
+  const rv=$("#reserve"); if(rv) rv.onclick=()=>{ const i=itemBy(S.item), p=periods(i)[S.period];
+    if(S.reservation){ itemBy(S.reservation.item).stock[S.reservation.node]++; }
+    i.stock[S.node]--; S.reservation={item:i.id,node:S.node,comp:3+Math.floor(Math.random()*20),pin:String(1000+Math.floor(Math.random()*9000)),until:Date.now()+30*60e3,due:p.d};
+    toast("Reserved. It's held for 30 minutes."); go("reserved"); };
+  const chg=$("#chg"); if(chg) chg.onclick=()=>{ const r=S.reservation; itemBy(r.item).stock[r.node]++; S.item=r.item; S.node=r.node; S.reservation=null; go("item"); toast("Choose a different locker. Your hold moves with you."); };
+  const cc=$("#cancel"); if(cc) cc.onclick=()=>{ const r=S.reservation; itemBy(r.item).stock[r.node]++; S.reservation=null; toast("Reservation cancelled."); go("browse","browse"); };
+  const tap=$("#tap"); if(tap) tap.onclick=()=>{ S.locker.stage="open"; go("locker"); };
+  const up=$("#usepin"); if(up) up.onclick=()=>{ S.locker.stage="pin"; go("locker"); setTimeout(()=>$("#pinin")&&$("#pinin").focus(),50); };
+  const pk=$("#pinok"); if(pk) pk.onclick=()=>{ const v=$("#pinin").value.trim();
+    if(S.locker.mode==="collect"&&v!==S.locker.pin){ $("#pinerr").textContent=v?"That PIN doesn't match. Check the reservation screen on your phone.":"Enter the 4-digit PIN first."; return; }
+    S.locker.stage="open"; go("locker"); };
+  const pi=$("#pinin"); if(pi) pi.oninput=()=>{ $("#pinerr").textContent=""; };
+  const cl=$("#closed"); if(cl) cl.onclick=()=>{ const L=S.locker;
+    if(L.mode==="collect"){ const i=itemBy(L.item);
+      S.loans.unshift({uid:"L"+Date.now(),item:L.item,tag:i.id.slice(0,2).toUpperCase()+"-0"+(100+Math.floor(Math.random()*800)),from:L.node,issued:new Date(TODAY),due:L.due});
+      S.reservation=null; L.stage="done"; go("locker"); check("collected:"+L.item+"@"+L.node); }
+    else { L.stage="scan"; go("locker"); setTimeout(()=>{ if(S.locker===L){ L.stage="condition"; go("locker"); } },1300); } };
+  on("[data-cond]",e=>{ const L=S.locker, c=e.currentTarget.dataset.cond;
+    S.loans=S.loans.filter(x=>x.uid!==L.uid); itemBy(L.item).stock[L.node]++;
+    if(c!=="good"){ S.faultFor=itemBy(L.item).name+" (tag "+L.tag+")"; S.faultReason=c==="damaged"?"damaged":"other"; S.faultBack="loans"; check("returned:"+L.item); go("fault"); toast("Returned. Tell us what's wrong so we can fix it."); return; }
+    L.stage="done"; go("locker"); check("returned:"+L.item); });
+  on("[data-fault]",e=>{ const L=S.locker; S.faultReason=e.currentTarget.dataset.fault; S.faultFor=`${NODES[L.node].n}, compartment ${L.comp}`; S.faultBack="locker"; go("fault"); });
+  on("[data-return]",e=>{ const l=S.loans.find(x=>x.uid===e.currentTarget.dataset.return);
+    const n=Object.keys(NODES).sort((a,b)=>WALK[S.loc][a]-WALK[S.loc][b])[0];
+    S.locker={mode:"return",uid:l.uid,item:l.item,tag:l.tag,node:n,comp:2+Math.floor(Math.random()*20),stage:"tap"}; go("returnpick"); });
+  on("[data-rnode]",e=>{ S.locker.node=e.currentTarget.dataset.rnode; go("returnpick"); });
+  const gr=$("#goreturn"); if(gr) gr.onclick=()=>go("locker");
+  on("[data-extend]",e=>{ S.extendFor=e.currentTarget.dataset.extend; go("extend"); });
+  const de=$("#doext"); if(de) de.onclick=()=>{ const l=S.loans.find(x=>x.uid===S.extendFor);
+    const nd=new Date(l.due.getTime()+24*3600e3); if(HOLIDAYS[key(nd)]){nd.setDate(nd.getDate()+1); nd.setHours(10,0,0,0);} l.due=nd;
+    toast("Extended. Now due "+fmtD(nd)+"."); go("loans","loans"); check("extended:"+l.item); };
+  on("[data-reportloan]",e=>{ const l=S.loans.find(x=>x.uid===e.currentTarget.dataset.reportloan); S.faultFor=itemBy(l.item).name+" (tag "+l.tag+")"; S.faultReason=null; S.faultBack="loans"; go("fault"); });
+  on("[data-reason]",e=>{ S.faultReason=e.currentTarget.dataset.reason; view.querySelectorAll("[data-reason]").forEach(b=>b.setAttribute("aria-pressed",b===e.currentTarget)); const fe=$("#ferr"); if(fe) fe.textContent=""; });
+  const ph=$("#photo"); if(ph) ph.onclick=()=>{ ph.textContent="Photo added"; ph.disabled=true; };
+  const sf=$("#sendfault"); if(sf) sf.onclick=()=>{ if(!S.faultReason){ $("#ferr").textContent="Choose what happened first."; return; }
+    const ref="WO-"+(2300+Math.floor(Math.random()*600)), reason=S.faultReason;
+    if(S.faultBack==="locker"&&S.locker&&S.locker.mode==="collect"&&S.reservation&&(S.faultReason==="noopen"||S.faultReason==="wrong")){ S.reservation.node=S.locker.node; S.reservation.comp=S.locker.comp===24?1:S.locker.comp+1; }
+    view_render(`<h2>Fault reported</h2><div class="note ok">Reference <b>${ref}</b>. A technician has been notified.</div>
+      <p>${(reason==="noopen"||reason==="wrong")&&S.reservation?`We've moved your reservation to compartment ${S.reservation.comp} at the same locker, so you can still collect it now.`:(reason==="noopen"&&S.locker&&S.locker.mode==="return")?"Tap your card again and the locker will open a different compartment for your return.":"You won't be charged for a fault you report. We'll check the item before it's lent again."}</p>
+      <button class="btn primary" data-go="${S.reservation?"reserved":"loans"}">${S.reservation?"Back to my reservation":"Back to my loans"}</button>`);
+    check("fault:"+reason); };
+  const lg=$("#lg"); if(lg) lg.onchange=e=>document.documentElement.classList.toggle("large",e.target.checked);
+  const hc=$("#hc"); if(hc) hc.onchange=e=>document.documentElement.classList.toggle("contrast",e.target.checked);
+  const np=$("#newp"); if(np) np.onclick=()=>{ const id="P"+String(RES.length+1).padStart(2,"0"); RES.push({id,tasks:{},sus:null}); saveRes(RES); S.pid=id; S.sus=null; go("test","test"); };
+  const ep=$("#endp"); if(ep) ep.onclick=()=>{ S.pid=null; go("test","test"); };
+  on("[data-starttask]",e=>startTask(e.currentTarget.dataset.starttask));
+  on("[data-sus]",e=>{ const [k,v]=e.currentTarget.dataset.sus.split(":").map(Number); S.sus[k]=v;
+    e.currentTarget.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===e.currentTarget)); $("#suserr").textContent=""; });
+  const sd=$("#susdone"); if(sd) sd.onclick=()=>{ const miss=S.sus.findIndex(v=>v==null);
+    if(miss>=0){ $("#suserr").textContent=`Answer question ${miss+1} first.`; return; }
+    const score=S.sus.reduce((a,v,k)=>a+(k%2===0?v-1:5-v),0)*2.5; const p=curP(); if(p){ p.sus=score; saveRes(RES); }
+    S.sus=null; toast("Thanks. Please hand the phone back."); go("test","test"); };
+  const wp=$("#wipe"); if(wp) wp.onclick=()=>{ if(wp.dataset.sure){ RES=[]; saveRes(RES); S.pid=null; go("test","test"); } else { wp.dataset.sure="1"; wp.textContent="Tap again to delete all results"; } };
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ const t=b.dataset.tab; go(t,t); }));
+const locSel=$("#loc"); locSel.innerHTML=Object.entries(ZONES).map(([k,z])=>`<option value="${k}">${z.n}</option>`).join("");
+locSel.value=S.loc; locSel.onchange=e=>{ S.loc=e.target.value; go(S.view); };
+document.addEventListener("click",()=>{ if(S.test) S.test.taps++; },true);
+resetDemo(); go("browse","browse");
+</script>
+</body>
+</html>
