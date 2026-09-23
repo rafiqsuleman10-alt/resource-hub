@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* Dark mode follows the device setting, unless the page sets
+   <html data-theme="light|dark"> (the toggle comes in a later phase). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ------------------------------------------------------------------
+   Colours and sizes from the approved prototype (prototype.html)
+   ------------------------------------------------------------------ */
+:root {
+  --ink: #1e2a36;
+  --ink-2: #4b5968;
+  --ink-3: #7a8794;
+  --bg: #e9eef2;
+  --surface: #ffffff;
+  --surface-2: #f4f7f9;
+  --line: #d5dde3;
+  --teal: #0c7a5e;
+  --teal-soft: #ddf1ea;
+  --amber: #a8620a;
+  --amber-soft: #fbebd3;
+  --coral: #b63a24;
+  --coral-soft: #f8e1db;
+  --slate: #2c3a48;
+  --kiosk: #17212b;
+  --kiosk-2: #22303d;
+  --focus: #1b6fd1;
+  --on-teal: #ffffff; /* text on teal buttons */
+  --fs: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e6ecf1;
+    --ink-2: #b3bfca;
+    --ink-3: #8594a2;
+    --bg: #0f161d;
+    --surface: #18222c;
+    --surface-2: #1f2b36;
+    --line: #2e3c4a;
+    --teal: #3cc49a;
+    --teal-soft: #15382e;
+    --amber: #eba64a;
+    --amber-soft: #3a2a12;
+    --coral: #f08469;
+    --coral-soft: #3e1f18;
+    --slate: #0b1117;
+    --kiosk: #0a1016;
+    --kiosk-2: #15202a;
+    --focus: #6fa8f0;
+    --on-teal: #0b1117;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e6ecf1;
+  --ink-2: #b3bfca;
+  --ink-3: #8594a2;
+  --bg: #0f161d;
+  --surface: #18222c;
+  --surface-2: #1f2b36;
+  --line: #2e3c4a;
+  --teal: #3cc49a;
+  --teal-soft: #15382e;
+  --amber: #eba64a;
+  --amber-soft: #3a2a12;
+  --coral: #f08469;
+  --coral-soft: #3e1f18;
+  --slate: #0b1117;
+  --kiosk: #0a1016;
+  --kiosk-2: #15202a;
+  --focus: #6fa8f0;
+  --on-teal: #0b1117;
+}
+/* Help screen toggles (wired up in a later phase). */
+:root.contrast {
+  --ink: #000;
+  --ink-2: #1a1a1a;
+  --ink-3: #333;
+  --line: #000;
+  --teal: #005a41;
+  --amber: #7a4300;
+  --coral: #8e1c08;
+}
+:root.large {
+  --fs: 19px;
+}
+
+/* Make the colours usable as Tailwind classes, e.g. bg-surface, text-ink-2. */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-slate: var(--slate);
+  --color-kiosk: var(--kiosk);
+  --color-kiosk-2: var(--kiosk-2);
+  --font-sans: var(--font-atkinson), "Segoe UI", system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+html {
+  font-size: var(--fs);
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.45;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Shared pieces, named as in the prototype
+   ------------------------------------------------------------------ */
+@layer components {
+  .btn {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 14px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: var(--on-teal);
+  }
+  .btn-secondary {
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+  }
+  .btn-danger {
+    background: none;
+    color: var(--coral);
+    border: 1.5px solid var(--coral-soft);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .field {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface-2);
+  }
+
+  .note {
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.9em;
+  }
+  .note-warn {
+    background: var(--amber-soft);
+  }
+  .note-warn b {
+    color: var(--amber);
+  }
+  .note-ok {
+    background: var(--teal-soft);
+  }
+  .note-bad {
+    background: var(--coral-soft);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+  }
+}
