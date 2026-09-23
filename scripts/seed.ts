@@ -63,7 +63,9 @@ async function main() {
   if (error) {
     if (error.code === "PGRST202") {
       throw new Error(
-        "The database tables aren't set up yet. Run the SQL files in supabase/migrations first (see README).",
+        "The reset_demo_data function isn't in the database. In the Supabase SQL Editor, run every file in " +
+          "supabase/migrations in order (the demo data one is 20260923000002_demo_data.sql), then run this again. " +
+          "If you already ran them, run  notify pgrst, 'reload schema';  there and try again.",
       );
     }
     throw error;
