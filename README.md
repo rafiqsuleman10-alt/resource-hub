@@ -2,6 +2,7 @@
 
 A working web app for the DUT Industrial Engineering design project **"Design of an Intelligent Shared Resource Hub for University Campuses"**. Students reserve, collect and return shared equipment from smart lockers; technicians manage stock across three locker nodes. It is a demo with sample data only.
 
+- **Live demo:** https://resource-hub-1iaf.vercel.app
 - `SPEC.md` is the full brief. `prototype.html` is the approved design.
 - Built with Next.js (App Router, TypeScript, Tailwind CSS) and Supabase (database and logins).
 
@@ -15,7 +16,7 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | 4 | Faults, work orders, maintenance, usage threshold | Done |
 | 5 | Technician dashboard, rebalancing, chart, reset demo data | Done |
 | 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | Done |
-| 7 | Deploy to Vercel | In progress |
+| 7 | Deploy to Vercel | Done |
 
 ## Folder guide
 
