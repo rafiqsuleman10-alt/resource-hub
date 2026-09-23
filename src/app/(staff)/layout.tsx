@@ -1,7 +1,7 @@
-import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 import { ROLE_LABEL } from "@/lib/demo";
 import { getStaff } from "@/lib/staff";
+import StaffNav from "./StaffNav";
 
 // Frame for the staff screens (desktop-first, still fine on a phone).
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -18,14 +18,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             </p>
           </div>
           <nav aria-label="Main" className="flex items-center gap-1">
-            {profile.role === "technician" && (
-              <Link href="/" className="rounded-lg px-3 py-2 text-[#C9D3DC] hover:bg-white/10">
-                Home
-              </Link>
-            )}
-            <Link href="/maintenance" aria-current="page" className="rounded-lg bg-white/15 px-3 py-2 font-bold">
-              Work orders
-            </Link>
+            <StaffNav role={profile.role} />
             <span className="ml-2">
               <SignOutButton />
             </span>

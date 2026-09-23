@@ -41,3 +41,42 @@ export async function closeWork(_prev: StaffState, formData: FormData): Promise<
   const params = new URLSearchParams({ closed: label, to: compartment === null ? "" : String(compartment) });
   redirect(`/maintenance?${params}`);
 }
+
+/** "Mark as moved" on a rebalancing suggestion. */
+export async function moveStock(_prev: StaffState, formData: FormData): Promise<StaffState> {
+  const { data, error } = await rpc("move_stock", {
+    p_item_type_id: String(formData.get("type") ?? ""),
+    p_from: String(formData.get("from") ?? ""),
+    p_to: String(formData.get("to") ?? ""),
+    p_count: Number(formData.get("count")),
+  });
+  if (error) return { error: friendly(error) };
+  const params = new URLSearchParams({
+    moved: String(data),
+    item: String(formData.get("name") ?? ""),
+    from: String(formData.get("from") ?? ""),
+    to: String(formData.get("to") ?? ""),
+  });
+  redirect(`/dashboard?${params}`);
+}
+
+/** Put all the demo data back to how it started (technicians only; the database checks). */
+export async function resetDemo(): Promise<StaffState> {
+  const { error } = await rpc("reset_demo_data", {});
+  if (error) return { error: error.message.includes("Only a technician") ? error.message : friendly(error) };
+  redirect("/dashboard?reset=1");
+}
+
+/** Switch a locker's battery backup or online status (for demonstrating the warnings). */
+export async function setNodeStatus(_prev: StaffState, formData: FormData): Promise<StaffState> {
+  const field = formData.get("field");
+  if (field !== "battery_backup_ok" && field !== "online") return { error: "Unknown setting." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("locker_nodes")
+    .update({ [field]: formData.get("value") === "true" })
+    .eq("id", String(formData.get("node") ?? ""))
+    .select("id");
+  if (error || !data?.length) return { error: "Only technicians can change a locker's status." };
+  redirect("/dashboard");
+}

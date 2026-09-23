@@ -26,3 +26,18 @@ export function loanLabel(hours: number, options: number[]) {
   if (hours % 24 === 0) return `${hours / 24} days`;
   return `${hours} hours`;
 }
+
+/** Midnight (South African time) at the start of today, or `daysAgo` days before. SA has no daylight saving. */
+export function saDayStart(daysAgo = 0, now: Date = new Date()) {
+  const midnight = new Date(`${dayKey(now)}T00:00:00+02:00`);
+  return new Date(midnight.getTime() - daysAgo * 86_400_000);
+}
+
+/** "3 h" or "2 days 4 h" */
+export function fmtDuration(ms: number) {
+  const hours = Math.max(1, Math.round(ms / 3_600_000));
+  const days = Math.floor(hours / 24);
+  const rest = hours % 24;
+  if (!days) return `${hours} h`;
+  return `${days} day${days > 1 ? "s" : ""}${rest ? ` ${rest} h` : ""}`;
+}

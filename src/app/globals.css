@@ -26,6 +26,7 @@
   --kiosk-2: #22303d;
   --focus: #1b6fd1;
   --on-teal: #ffffff; /* text on teal buttons */
+  --chart: #0c7a5e; /* chart bars */
   --fs: 16px;
 }
 
@@ -49,6 +50,7 @@
     --kiosk-2: #15202a;
     --focus: #6fa8f0;
     --on-teal: #0b1117;
+    --chart: #2fa882;
   }
 }
 :root[data-theme="dark"] {
@@ -70,6 +72,7 @@
   --kiosk-2: #15202a;
   --focus: #6fa8f0;
   --on-teal: #0b1117;
+  --chart: #2fa882;
 }
 /* Help screen toggles (wired up in a later phase). */
 :root.contrast {
@@ -103,6 +106,7 @@
   --color-slate: var(--slate);
   --color-kiosk: var(--kiosk);
   --color-kiosk-2: var(--kiosk-2);
+  --color-chart: var(--chart);
   --font-sans: var(--font-atkinson), "Segoe UI", system-ui, sans-serif;
 }
 

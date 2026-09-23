@@ -13,8 +13,8 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | 2 | Browse, item, reserve, countdown, cancel, change locker | Done |
 | 3 | Kiosk collection and return, loans, extend, holiday rule | Done |
 | 4 | Faults, work orders, maintenance, usage threshold | Done |
-| 5 | Technician dashboard, rebalancing, chart, reset demo data | Next |
-| 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | |
+| 5 | Technician dashboard, rebalancing, chart, reset demo data | Done |
+| 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | Next |
 | 7 | Deploy to Vercel | |
 
 ## Folder guide
@@ -24,7 +24,8 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | `src/app/` | The pages. `login/` is the login page; `page.tsx` is the home page. |
 | `src/app/(student)/` | The student screens: `browse`, `items/[typeId]` (reserve), `reservation` (countdown, change locker, cancel), `loans` and `help`. `actions.ts` holds the buttons' server code. |
 | `src/app/(student)/faults/` | Report a fault (with an optional photo) and see your reports. |
-| `src/app/(staff)/` | Screens for staff. `maintenance/` lists work orders and routine services. |
+| `src/app/(staff)/` | Screens for staff. `dashboard/` is the technician's dashboard; `maintenance/` lists work orders and routine services. |
+| `src/lib/rebalance.ts` | The rule behind the dashboard's rebalancing suggestions. |
 | `src/app/kiosk/` | The locker touchscreen, simulated: `/kiosk` lists the lockers, `/kiosk/S` (or `C`, `SR`) is one locker's screen. No login. |
 | `src/components/` | Pieces used on several pages, such as the campus strip. |
 | `src/lib/student.ts` | Loads the logged-in student, their location and stock counts. |
@@ -61,7 +62,7 @@ You need [Node.js](https://nodejs.org) 20 or newer and a free [Supabase](https:/
 2. Open `supabase/migrations/20260923000001_schema.sql`, copy all of it, paste it in, and click **Run**. You should see "Success. No rows returned".
 3. Do the same with `supabase/migrations/20260923000002_demo_data.sql`.
 
-Then run `supabase/migrations/20260923000003_reservations.sql` (phase 2: reserving) `supabase/migrations/20260923000004_kiosk_and_loans.sql` (phase 3: the locker screen, returns and extensions) `supabase/migrations/20260923000005_faults_and_maintenance.sql` (phase 4: fault reports, maintenance, and the private `fault-photos` storage for fault photos) and `supabase/migrations/20260923000006_return_fault_flag.sql` (a small phase 4 fix) the same way.
+Then run `supabase/migrations/20260923000003_reservations.sql` (phase 2: reserving) `supabase/migrations/20260923000004_kiosk_and_loans.sql` (phase 3: the locker screen, returns and extensions) `supabase/migrations/20260923000005_faults_and_maintenance.sql` (phase 4: fault reports, maintenance, and the private `fault-photos` storage for fault photos) `supabase/migrations/20260923000006_return_fault_flag.sql` (a small phase 4 fix) and `supabase/migrations/20260923000007_rebalancing.sql` (phase 5: moving stock between lockers) the same way.
 
 Always run migration files in order (by the number at the start of the name). Later phases add more files; run only the new ones.
 
@@ -104,7 +105,7 @@ npm run typecheck   # TypeScript errors
 npm run build       # full production build
 ```
 
-`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report") the reservation rules (30-minute holds, one hold at a time, change locker, holiday due dates) the locker rules (card and PIN, faults at collection, returns, extensions) and the maintenance rules (fault reports, usage threshold, closing work orders). The photo storage part only exists on Supabase, so it is skipped there. It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
+`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report") the reservation rules (30-minute holds, one hold at a time, change locker, holiday due dates) the locker rules (card and PIN, faults at collection, returns, extensions) the maintenance rules (fault reports, usage threshold, closing work orders) and moving stock between lockers. The photo storage part only exists on Supabase, so it is skipped there. It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
 
 ## Notes on the demo data
 
@@ -117,6 +118,9 @@ npm run build       # full production build
 - On the locker screen, "tapping a card" means choosing one of the demo cards (CARD-0001 is Student 1, CARD-0002 is Student 2), and "holding a tag to the reader" means typing the tag printed on the item, such as `VC-0412`.
 - "Door didn't open" and "wrong item" at the locker log a fault with a work order number (WO-####), take that unit out of use, and move the reservation to another unit at the same locker. Returning something as "minor problem" or "damaged" does the same for the returned item.
 - A loan can be extended once, by one day, unless it's overdue or another student has that kind of item on hold at the locker it came from.
+- Dashboard figures: fill rate today = reservations that succeeded ÷ reservation attempts since midnight; utilisation = units on loan ÷ all units not retired.
+- Rebalancing: for each item type, if a locker has none free, the dashboard suggests moving some from the locker with the most, sharing them out evenly and always leaving at least one behind. "Mark as moved" updates the stock once the items have been carried over.
+- The dashboard's Lockers switches turn a locker's battery backup or online status off, to show the warnings on the student screens and the locker screen.
 - Closing a work order or a routine service puts the item back in stock at Node S (nearest the Maintenance and Facilities hub). Closing a routine service also restarts the item's loan count, so `loan_count` means "loans since its last service".
 - A fault reported on something still on loan leaves it with the student; it goes to maintenance when it's returned.
 - The seed also creates 14 days of past loans (for the dashboard chart), one open fault (WO-1001, a cracked hard hat) and one calculator due for its 100-loan service, so the maintenance screens have something to show.

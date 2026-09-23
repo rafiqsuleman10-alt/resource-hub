@@ -11,3 +11,4 @@ run -f tests/rls_test.sql
 run -f tests/reservations_test.sql
 run -f tests/kiosk_test.sql
 run -f tests/maintenance_test.sql
+run -f tests/dashboard_test.sql
