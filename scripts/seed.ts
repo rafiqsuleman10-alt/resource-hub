@@ -8,10 +8,11 @@
 import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from "../src/lib/demo";
+import { toProjectUrl } from "../src/lib/supabase/env";
 
 config({ path: ".env.local", quiet: true });
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const url = toProjectUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !serviceKey) {
