@@ -43,8 +43,14 @@ export default function FaultForm({
     return () => URL.revokeObjectURL(photo.url);
   }, [photo]);
 
-  function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Read the choices from the form itself, so a tap made before the page
+    // finished loading still counts.
+    const fields = new FormData(e.currentTarget);
+    const reason = (fields.get("reason") as FaultReason | null) ?? null;
+    const note = String(fields.get("note") ?? "");
+    const node = String(fields.get("node") ?? "");
     if (!reason) {
       setError("Choose what happened first.");
       return;
@@ -81,7 +87,7 @@ export default function FaultForm({
       {!loan && (
         <label className="mb-3 grid gap-1">
           <span className="font-bold">Which locker?</span>
-          <select className="field" value={node} onChange={(e) => setNode(e.target.value)}>
+          <select name="node" className="field" value={node} onChange={(e) => setNode(e.target.value)}>
             {nodes.map((n) => (
               <option key={n.id} value={n.id}>
                 {n.label}
@@ -102,6 +108,7 @@ export default function FaultForm({
               <input
                 type="radio"
                 name="reason"
+                value={r}
                 className="sr-only"
                 checked={reason === r}
                 onChange={() => {
@@ -120,6 +127,7 @@ export default function FaultForm({
       </label>
       <textarea
         id="note"
+        name="note"
         maxLength={1000}
         value={note}
         onChange={(e) => setNote(e.target.value)}
