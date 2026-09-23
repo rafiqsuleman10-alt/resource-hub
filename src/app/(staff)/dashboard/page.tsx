@@ -206,7 +206,7 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
                 {moves.map((m) => (
                   <li key={`${m.typeId}-${m.to}`} className="card flex flex-wrap items-center justify-between gap-2 p-3">
                     <span>
-                      Move <b>{m.count}</b> {m.typeName.toLowerCase()} from <b>{nodeName(m.from)}</b> to{" "}
+                      Move <b>{m.count}</b> {plural(m.typeName.toLowerCase(), m.count)} from <b>{nodeName(m.from)}</b> to{" "}
                       <b>{nodeName(m.to)}</b>
                     </span>
                     <MoveButton type={m.typeId} name={m.typeName} from={m.from} to={m.to} count={m.count} />
@@ -283,6 +283,11 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
       </div>
     </>
   );
+}
+
+/** "4 scientific calculators"; names already ending in s ("safety goggles") stay as they are. */
+function plural(name: string, n: number) {
+  return n === 1 || name.endsWith("s") ? name : `${name}s`;
 }
 
 function Stat({ label, value, hint, warn }: { label: string; value: number | string; hint?: string; warn?: boolean }) {

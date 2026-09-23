@@ -21,7 +21,7 @@ export default function LoansChart({ days }: { days: Day[] }) {
         {/* Y axis */}
         <div aria-hidden="true" className="relative h-48 w-6 flex-none text-right text-[0.75em] text-ink-3 tabular-nums">
           {ticks.map((t) => (
-            <span key={t} className="absolute right-0 -translate-y-1/2" style={{ bottom: `${(t / top) * 100}%` }}>
+            <span key={t} className="absolute right-0 translate-y-1/2" style={{ bottom: `${(t / top) * 100}%` }}>
               {t}
             </span>
           ))}
