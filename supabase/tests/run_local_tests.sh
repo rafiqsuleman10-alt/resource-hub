@@ -8,3 +8,4 @@ run() { psql -v ON_ERROR_STOP=1 -q -U postgres -d hub_test "$@"; }
 run -f tests/supabase_shim.sql
 for f in migrations/*.sql; do echo "== $f"; run -f "$f"; done
 run -f tests/rls_test.sql
+run -f tests/reservations_test.sql

@@ -5,10 +5,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 
-// Phase 1 home page: confirms who is logged in. The real screens for each
-// role (Browse, dashboard, work orders) replace this in later phases.
+// Home page. Students go straight to Browse; staff see who is logged in
+// until their dashboards arrive in later phases.
 const COMING_NEXT: Record<Role, string[]> = {
-  student: ["Browse equipment and see the nearest locker", "Reserve an item and collect it", "See and return your loans"],
+  student: [],
   technician: ["Dashboard with stock at every locker", "Overdue loans and open faults", "Reset demo data"],
   maintenance: ["Open work orders", "Items due for a service"],
 };
@@ -26,6 +26,7 @@ export default async function Home() {
     .select("display_name, role, faculty, year_of_study")
     .eq("id", claims.claims.sub)
     .maybeSingle();
+  if (profile?.role === "student") redirect("/browse");
 
   return (
     <>

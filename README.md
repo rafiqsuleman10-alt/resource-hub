@@ -10,8 +10,8 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | Phase | What | Status |
 |---|---|---|
 | 1 | Project setup, database with security rules, seed data, demo login | Done |
-| 2 | Browse, item, reserve, countdown, cancel, change locker | Next |
-| 3 | Kiosk collection and return, loans, extend, holiday rule | |
+| 2 | Browse, item, reserve, countdown, cancel, change locker | Done |
+| 3 | Kiosk collection and return, loans, extend, holiday rule | Next |
 | 4 | Faults, work orders, maintenance, usage threshold | |
 | 5 | Technician dashboard, rebalancing, chart, reset demo data | |
 | 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | |
@@ -22,6 +22,9 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 | Path | What's in it |
 |---|---|
 | `src/app/` | The pages. `login/` is the login page; `page.tsx` is the home page. |
+| `src/app/(student)/` | The student screens: `browse`, `items/[typeId]` (reserve), `reservation` (countdown, change locker, cancel), `loans` and `help`. `actions.ts` holds the buttons' server code. |
+| `src/components/` | Pieces used on several pages, such as the campus strip. |
+| `src/lib/student.ts` | Loads the logged-in student, their location and stock counts. |
 | `src/lib/supabase/` | How the site connects to Supabase. |
 | `src/lib/demo.ts` | The demo accounts and the demo password. |
 | `src/proxy.ts` | Runs before every page: keeps you logged in and sends logged-out visitors to `/login`. |
@@ -54,6 +57,8 @@ You need [Node.js](https://nodejs.org) 20 or newer and a free [Supabase](https:/
 1. In Supabase, open **SQL Editor** and click **New query**.
 2. Open `supabase/migrations/20260923000001_schema.sql`, copy all of it, paste it in, and click **Run**. You should see "Success. No rows returned".
 3. Do the same with `supabase/migrations/20260923000002_demo_data.sql`.
+
+Then run `supabase/migrations/20260923000003_reservations.sql` the same way (phase 2: reserving).
 
 Always run migration files in order (by the number at the start of the name). Later phases add more files; run only the new ones.
 
@@ -94,7 +99,7 @@ npm run typecheck   # TypeScript errors
 npm run build       # full production build
 ```
 
-`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report"). It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
+`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report") and the reservation rules (30-minute holds, one hold at a time, change locker, holiday due dates). It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
 
 ## Notes on the demo data
 
@@ -102,4 +107,6 @@ npm run build       # full production build
 - Tags follow the prototype (e.g. `VC-0412`, `LT-0087`).
 - The ABC, FSN and criticality classes are estimates (ABC by share of total stock value). Adjust them in `supabase/migrations/20260923000002_demo_data.sql` if the report's analysis differs.
 - Each node has a few spare compartments of every size, so a reservation can move to another compartment. Node S holds 55 units, so it has 61 compartments rather than the "about 51" in the brief.
+- A hold lasts 30 minutes. There's no background timer: whenever a page shows stock, the database first ends any holds whose time is up and puts those items back.
+- If a loan would end on a South African public holiday, it's due at 10:00 on the next working day instead. The holiday list (2026 and 2027) is in the demo data.
 - The seed also creates 14 days of past loans (for the dashboard chart), one open fault (WO-1001, a cracked hard hat) and one calculator due for its 100-loan service, so the maintenance screens have something to show.
