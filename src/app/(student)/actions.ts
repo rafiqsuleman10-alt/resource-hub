@@ -60,3 +60,11 @@ export async function changeLocker(_prev: ActionState, formData: FormData): Prom
   if (error) return { error: friendly(error) };
   redirect("/reservation?moved=1");
 }
+
+export async function extendLoan(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await loggedIn();
+  const id = String(formData.get("id") ?? "");
+  const { error } = await supabase.rpc("extend_loan", { p_loan_id: id });
+  if (error) return { error: friendly(error) };
+  redirect(`/loans?extended=${encodeURIComponent(id)}`);
+}

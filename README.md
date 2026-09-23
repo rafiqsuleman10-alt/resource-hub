@@ -11,8 +11,8 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 |---|---|---|
 | 1 | Project setup, database with security rules, seed data, demo login | Done |
 | 2 | Browse, item, reserve, countdown, cancel, change locker | Done |
-| 3 | Kiosk collection and return, loans, extend, holiday rule | Next |
-| 4 | Faults, work orders, maintenance, usage threshold | |
+| 3 | Kiosk collection and return, loans, extend, holiday rule | Done |
+| 4 | Faults, work orders, maintenance, usage threshold | Next |
 | 5 | Technician dashboard, rebalancing, chart, reset demo data | |
 | 6 | Polish: desktop layout, dark mode toggle, accessibility, privacy page | |
 | 7 | Deploy to Vercel | |
@@ -23,11 +23,12 @@ A working web app for the DUT Industrial Engineering design project **"Design of
 |---|---|
 | `src/app/` | The pages. `login/` is the login page; `page.tsx` is the home page. |
 | `src/app/(student)/` | The student screens: `browse`, `items/[typeId]` (reserve), `reservation` (countdown, change locker, cancel), `loans` and `help`. `actions.ts` holds the buttons' server code. |
+| `src/app/kiosk/` | The locker touchscreen, simulated: `/kiosk` lists the lockers, `/kiosk/S` (or `C`, `SR`) is one locker's screen. No login. |
 | `src/components/` | Pieces used on several pages, such as the campus strip. |
 | `src/lib/student.ts` | Loads the logged-in student, their location and stock counts. |
 | `src/lib/supabase/` | How the site connects to Supabase. |
 | `src/lib/demo.ts` | The demo accounts and the demo password. |
-| `src/proxy.ts` | Runs before every page: keeps you logged in and sends logged-out visitors to `/login`. |
+| `src/proxy.ts` | Runs before every page: keeps you logged in and sends logged-out visitors to `/login` (except the locker screens). |
 | `supabase/migrations/` | The database, as SQL files. Run them in order. |
 | `scripts/seed.ts` | Creates the demo logins and loads the demo data (`npm run seed`). |
 | `supabase/tests/` | Automatic checks of the security rules (for developers). |
@@ -58,7 +59,7 @@ You need [Node.js](https://nodejs.org) 20 or newer and a free [Supabase](https:/
 2. Open `supabase/migrations/20260923000001_schema.sql`, copy all of it, paste it in, and click **Run**. You should see "Success. No rows returned".
 3. Do the same with `supabase/migrations/20260923000002_demo_data.sql`.
 
-Then run `supabase/migrations/20260923000003_reservations.sql` the same way (phase 2: reserving).
+Then run `supabase/migrations/20260923000003_reservations.sql` (phase 2: reserving) and `supabase/migrations/20260923000004_kiosk_and_loans.sql` (phase 3: the locker screen, returns and extensions) the same way.
 
 Always run migration files in order (by the number at the start of the name). Later phases add more files; run only the new ones.
 
@@ -90,6 +91,7 @@ Every table has Row Level Security switched on, so the database itself decides w
 - **Technicians** can see and change everything, and can reset the demo data.
 - **Maintenance officers** see items, fault reports and maintenance records, but not students' loans.
 - **Visitors who aren't logged in** see nothing.
+- **The locker screens** have no login, like a real locker. They can't read any table. They can only call a few `kiosk_*` database functions, and each one checks the student card, backup PIN or item tag it is given. After 5 wrong PINs in 5 minutes, a locker stops accepting PINs for 5 minutes (cards still work).
 
 ## Checks
 
@@ -99,7 +101,7 @@ npm run typecheck   # TypeScript errors
 npm run build       # full production build
 ```
 
-`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report") and the reservation rules (30-minute holds, one hold at a time, change locker, holiday due dates). It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
+`npm run test:db` loads the migrations into a throwaway local PostgreSQL database and checks the security rules above (for example, "student 1 can't see student 2's fault report") the reservation rules (30-minute holds, one hold at a time, change locker, holiday due dates) and the locker rules (card and PIN, faults at collection, returns, extensions). It needs a local PostgreSQL server; set `PGHOST` and `PGPORT` to point at it. Never run it against the real Supabase project.
 
 ## Notes on the demo data
 
@@ -109,4 +111,7 @@ npm run build       # full production build
 - Each node has a few spare compartments of every size, so a reservation can move to another compartment. Node S holds 55 units, so it has 61 compartments rather than the "about 51" in the brief.
 - A hold lasts 30 minutes. There's no background timer: whenever a page shows stock, the database first ends any holds whose time is up and puts those items back.
 - If a loan would end on a South African public holiday, it's due at 10:00 on the next working day instead. The holiday list (2026 and 2027) is in the demo data.
+- On the locker screen, "tapping a card" means choosing one of the demo cards (CARD-0001 is Student 1, CARD-0002 is Student 2), and "holding a tag to the reader" means typing the tag printed on the item, such as `VC-0412`.
+- "Door didn't open" and "wrong item" at the locker log a fault with a work order number (WO-####), take that unit out of use, and move the reservation to another unit at the same locker. Returning something as "minor problem" or "damaged" does the same for the returned item.
+- A loan can be extended once, by one day, unless it's overdue or another student has that kind of item on hold at the locker it came from.
 - The seed also creates 14 days of past loans (for the dashboard chart), one open fault (WO-1001, a cracked hard hat) and one calculator due for its 100-loan service, so the maintenance screens have something to show.

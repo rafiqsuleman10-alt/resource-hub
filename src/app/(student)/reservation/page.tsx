@@ -60,6 +60,10 @@ export default async function ReservationPage(props: PageProps<"/reservation">) 
               it&apos;s due the next working morning instead.
             </p>
           )}
+          <Link href={`/kiosk/${hold.node_id}?mode=collect`} className="btn btn-primary mt-3">
+            I&apos;m at the locker
+          </Link>
+          <p className="mt-1 text-[0.8em] text-ink-3">Demo: this opens the locker&apos;s touchscreen in this browser.</p>
           <Link href="/reservation/change" className="btn btn-secondary mt-3">
             Change locker
           </Link>
