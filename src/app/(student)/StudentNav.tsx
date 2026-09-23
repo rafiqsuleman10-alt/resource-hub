@@ -19,7 +19,7 @@ const TABS = [
   {
     href: "/loans",
     label: "My loans",
-    match: ["/loans"],
+    match: ["/loans", "/faults"],
     icon: (
       <>
         <rect x="4" y="3.5" width="16" height="17" rx="2.5" />

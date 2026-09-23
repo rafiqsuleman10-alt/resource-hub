@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { ROLE_LABEL, type Role } from "@/lib/demo";
@@ -27,6 +28,7 @@ export default async function Home() {
     .eq("id", claims.claims.sub)
     .maybeSingle();
   if (profile?.role === "student") redirect("/browse");
+  if (profile?.role === "maintenance") redirect("/maintenance");
 
   return (
     <>
@@ -58,6 +60,11 @@ export default async function Home() {
                 <li key={line}>{line}</li>
               ))}
             </ul>
+            {profile.role === "technician" && (
+              <Link href="/maintenance" className="btn btn-primary mt-4 md:max-w-xs">
+                Work orders and maintenance
+              </Link>
+            )}
           </section>
         ) : (
           <p className="note note-bad" role="alert">

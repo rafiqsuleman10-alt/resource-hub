@@ -92,12 +92,27 @@ export default async function LoansPage(props: PageProps<"/loans">) {
                       Extend
                     </Link>
                   )}
+                  <Link
+                    href={`/faults/new?loan=${l.id}`}
+                    className="min-w-[90px] flex-1 rounded-[10px] border-[1.5px] border-line bg-surface px-2 py-2 text-center text-[0.9em]"
+                  >
+                    Report a fault
+                  </Link>
                 </div>
               </li>
             );
           })}
         </ul>
       )}
+      <p className="mt-5 text-[0.9em]">
+        <Link href="/faults" className="font-bold text-teal underline">
+          My fault reports
+        </Link>
+        <span className="text-ink-3"> · </span>
+        <Link href="/faults/new" className="font-bold text-teal underline">
+          Report a problem with a locker
+        </Link>
+      </p>
     </>
   );
 }

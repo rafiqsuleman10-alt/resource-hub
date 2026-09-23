@@ -46,7 +46,7 @@ export async function returnProblem(loanId: string, compartmentId: string) {
   );
 }
 export async function confirmReturn(loanId: string, compartmentId: string) {
-  return call<{ overdue: boolean }>("kiosk_confirm_return", { p_loan_id: loanId, p_compartment_id: compartmentId });
+  return call<{ overdue: boolean; service_due: boolean }>("kiosk_confirm_return", { p_loan_id: loanId, p_compartment_id: compartmentId });
 }
 export async function returnCondition(loanId: string, condition: "good" | "minor" | "damaged") {
   return call<{ work_order: string | null }>("kiosk_return_condition", { p_loan_id: loanId, p_condition: condition });

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Help" };
 
@@ -21,6 +22,17 @@ export default function HelpPage() {
       <p className="mb-2.5">
         If a door doesn&apos;t open or the wrong item is inside, use the buttons on the locker screen. A technician is
         notified straight away.
+      </p>
+      <p className="mb-2.5">
+        Found a problem with something you borrowed? Use Report a fault on{" "}
+        <Link href="/loans" className="font-bold text-teal underline">
+          My loans
+        </Link>
+        . For a locker, use{" "}
+        <Link href="/faults/new" className="font-bold text-teal underline">
+          Report a problem with a locker
+        </Link>
+        .
       </p>
       <p>Technician desk: S-Blocks ground floor, weekdays 07:30 to 16:00.</p>
     </div>

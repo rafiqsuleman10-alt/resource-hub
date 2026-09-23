@@ -68,3 +68,21 @@ export async function extendLoan(_prev: ActionState, formData: FormData): Promis
   if (error) return { error: friendly(error) };
   redirect(`/loans?extended=${encodeURIComponent(id)}`);
 }
+
+/** Send a fault report. The photo (if any) was already uploaded by the browser. */
+export async function reportFault(formData: FormData): Promise<ActionState> {
+  const { supabase } = await loggedIn();
+  const text = (k: string) => {
+    const v = String(formData.get(k) ?? "").trim();
+    return v === "" ? null : v;
+  };
+  const { data, error } = await supabase.rpc("report_fault", {
+    p_reason: text("reason"),
+    p_note: text("note"),
+    p_loan_id: text("loan"),
+    p_node_id: text("node"),
+    p_photo_path: text("photo"),
+  });
+  if (error) return { error: friendly(error) };
+  redirect(`/faults?sent=${encodeURIComponent(String(data))}`);
+}
