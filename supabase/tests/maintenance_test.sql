@@ -60,6 +60,7 @@ insert into t select 'retdone', public.kiosk_confirm_return((select (v ->> 'loan
 reset role;
 select pg_temp.expect((select status = 'in_service' and current_node_id = 'SR' from public.items where tag = 'LT-0087'),
   'returned item with a fault goes to maintenance');
+select pg_temp.expect((select (v ->> 'fault_open')::boolean from t where k = 'retdone'), 'kiosk is told the item has a fault');
 
 -- ---- Usage threshold ----
 -- The caliper (60 loans before a service) reaches its count on this loan.

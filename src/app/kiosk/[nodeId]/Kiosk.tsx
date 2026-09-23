@@ -36,8 +36,8 @@ type Screen =
   | { kind: "return-id" }
   | { kind: "return-open"; ret: ReturnStart; note?: string }
   | { kind: "return-stopped"; workOrder: string }
-  | { kind: "return-condition"; ret: ReturnStart; overdue: boolean; serviceDue: boolean }
-  | { kind: "return-done"; item: string; workOrder: string | null; overdue: boolean; serviceDue: boolean };
+  | { kind: "return-condition"; ret: ReturnStart; overdue: boolean; serviceDue: boolean; faultOpen: boolean }
+  | { kind: "return-done"; item: string; workOrder: string | null; overdue: boolean; serviceDue: boolean; faultOpen: boolean };
 
 const IDLE_AFTER = 20; // seconds without a tap before going back to the start
 
@@ -488,7 +488,8 @@ function Screens({
             onClick={() =>
               run(
                 () => confirmReturn(ret.loan_id, ret.compartment_id),
-                (r) => go({ kind: "return-condition", ret, overdue: r.overdue, serviceDue: r.service_due }),
+                (r) =>
+                  go({ kind: "return-condition", ret, overdue: r.overdue, serviceDue: r.service_due, faultOpen: !!r.fault_open }),
               )
             }
           >
@@ -544,6 +545,7 @@ function Screens({
               workOrder: r.work_order,
               overdue: screen.overdue,
               serviceDue: screen.serviceDue,
+              faultOpen: screen.faultOpen,
             }),
         );
       return (
@@ -572,6 +574,11 @@ function Screens({
             <p className="mb-2">
               Thanks for telling us. We&apos;ve logged it as {screen.workOrder} and a technician will check it before
               it&apos;s lent again. You won&apos;t be charged for a fault you report.
+            </p>
+          ) : screen.faultOpen ? (
+            <p className="mb-2">
+              The loan is closed. There&apos;s a fault report open for this {screen.item.toLowerCase()}, so a technician
+              will check it before it&apos;s lent again.
             </p>
           ) : screen.serviceDue ? (
             <p className="mb-2">

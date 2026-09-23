@@ -61,7 +61,7 @@ You need [Node.js](https://nodejs.org) 20 or newer and a free [Supabase](https:/
 2. Open `supabase/migrations/20260923000001_schema.sql`, copy all of it, paste it in, and click **Run**. You should see "Success. No rows returned".
 3. Do the same with `supabase/migrations/20260923000002_demo_data.sql`.
 
-Then run `supabase/migrations/20260923000003_reservations.sql` (phase 2: reserving) `supabase/migrations/20260923000004_kiosk_and_loans.sql` (phase 3: the locker screen, returns and extensions) and `supabase/migrations/20260923000005_faults_and_maintenance.sql` (phase 4: fault reports, maintenance, and the private `fault-photos` storage for fault photos) the same way.
+Then run `supabase/migrations/20260923000003_reservations.sql` (phase 2: reserving) `supabase/migrations/20260923000004_kiosk_and_loans.sql` (phase 3: the locker screen, returns and extensions) `supabase/migrations/20260923000005_faults_and_maintenance.sql` (phase 4: fault reports, maintenance, and the private `fault-photos` storage for fault photos) and `supabase/migrations/20260923000006_return_fault_flag.sql` (a small phase 4 fix) the same way.
 
 Always run migration files in order (by the number at the start of the name). Later phases add more files; run only the new ones.
 
